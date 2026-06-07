@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Purchase Order Template</title>
+        <title lang="de-DE">Bestellvorlage</title>
+
+        <input-field type="colorpicker">
+            <name>poPrimaryColor</name>
+            <label>Primary Color</label>
+            <label lang="de-DE">Primärfarbe</label>
+            <helpText>Primary accent color used in the PO template header, table headings, and section titles.</helpText>
+            <defaultValue>#1E88E5</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>poFontFamily</name>
+            <label>Font Family</label>
+            <label lang="de-DE">Schriftart</label>
+            <helpText>Font used in the exported PO document.</helpText>
+            <defaultValue>DejaVu Sans</defaultValue>
+            <options>
+                <option>
+                    <id>DejaVu Sans</id>
+                    <name>DejaVu Sans</name>
+                </option>
+                <option>
+                    <id>Arial</id>
+                    <name>Arial</name>
+                </option>
+                <option>
+                    <id>Helvetica</id>
+                    <name>Helvetica</name>
+                </option>
+                <option>
+                    <id>Times New Roman</id>
+                    <name>Times New Roman</name>
+                </option>
+                <option>
+                    <id>Courier New</id>
+                    <name>Courier New</name>
+                </option>
+            </options>
+        </input-field>
+    </card>
+
+    <card>
+        <title>Template Visibility</title>
+        <title lang="de-DE">Sichtbarkeit der Vorlage</title>
+
+        <input-field type="bool">
+            <name>showSupplierAddress</name>
+            <label>Show Supplier Address</label>
+            <label lang="de-DE">Lieferantenadresse anzeigen</label>
+            <helpText>Display the supplier billing address on the PO template.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showSupplierVat</name>
+            <label>Show Supplier VAT Number</label>
+            <label lang="de-DE">USt-Nr. des Lieferanten anzeigen</label>
+            <helpText>Display the supplier VAT number on the PO template.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showEan</name>
+            <label>Show EAN Column</label>
+            <label lang="de-DE">EAN-Spalte anzeigen</label>
+            <helpText>Display the EAN column in the items table.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showMpn</name>
+            <label>Show MPN Column</label>
+            <label lang="de-DE">MPN-Spalte anzeigen</label>
+            <helpText>Display the Manufacturer Part Number column in the items table.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showTaxColumn</name>
+            <label>Show Tax / VAT Row</label>
+            <label lang="de-DE">MwSt.-Zeile anzeigen</label>
+            <helpText>Display the tax/VAT row in the totals section of the PO template.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showNotes</name>
+            <label>Show Notes</label>
+            <label lang="de-DE">Notizen anzeigen</label>
+            <helpText>Display the notes section on the PO template.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showExpectedDelivery</name>
+            <label>Show Expected Delivery Date</label>
+            <label lang="de-DE">Voraussichtliches Lieferdatum anzeigen</label>
+            <helpText>Display the expected delivery date on the PO template.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showInternalReference</name>
+            <label>Show Internal Reference</label>
+            <label lang="de-DE">Interne Referenz anzeigen</label>
+            <helpText>Display the internal reference on the PO template.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+    </card>
+</config>

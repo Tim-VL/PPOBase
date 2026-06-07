@@ -1,0 +1,78 @@
+{% block ppobase_goods_receipt_list %}
+<sw-page class="ppobase-goods-receipt-list">
+
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-goods-receipt.list.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <div class="ppobase-goods-receipt-list__status-filter">
+            <sw-single-select
+                v-model:value="statusFilter"
+                :options="statusOptions"
+                :placeholder="$tc('ppobase-goods-receipt.list.filterStatus')"
+                size="small"
+                @update:value="onStatusFilterChange">
+            </sw-single-select>
+        </div>
+    </template>
+
+    <template #search-bar>
+        <sw-search-bar
+            :initial-search-type="$tc('ppobase-goods-receipt.list.title')"
+            @search="onSearch">
+        </sw-search-bar>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card :isLoading="isLoading">
+                <sw-data-grid
+                    v-if="goodsReceipts && goodsReceipts.length > 0"
+                    :dataSource="goodsReceipts"
+                    :columns="columns"
+                    :showSelection="false"
+                    :isLoading="isLoading"
+                    @column-sort="onSortColumn">
+                    <template #column-receiptNumber="{ item }">
+                        <router-link :to="{ name: 'ppobase.goods.receipt.detail', params: { id: item.id } }">
+                            {{ item.receiptNumber }}
+                        </router-link>
+                    </template>
+                    <template #column-purchaseOrder.poNumber="{ item }">
+                        <router-link v-if="item.purchaseOrder" :to="{ name: 'ppobase.purchase.order.detail', params: { id: item.purchaseOrderId } }">
+                            {{ item.purchaseOrder.poNumber }}
+                        </router-link>
+                        <span v-else>-</span>
+                    </template>
+                    <template #column-supplier.companyTradeName="{ item }">
+                        {{ item.supplier ? item.supplier.companyTradeName : '-' }}
+                    </template>
+                    <template #column-status="{ item }">
+                        <sw-label :variant="getStatusVariant(item.status)" appearance="pill" size="small">
+                            {{ $tc('ppobase-goods-receipt.status.' + item.status) }}
+                        </sw-label>
+                    </template>
+                    <template #column-receiptDate="{ item }">
+                        {{ formatDate(item.receiptDate) }}
+                    </template>
+                    <template #column-createdAt="{ item }">
+                        {{ formatDate(item.createdAt) }}
+                    </template>
+                </sw-data-grid>
+
+                <sw-pagination
+                    v-if="total > 0"
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :steps="[10, 25, 50, 100]"
+                    @page-change="onPageChange">
+                </sw-pagination>
+                <sw-empty-state v-else :title="$tc('ppobase-goods-receipt.list.emptyStateTitle')"></sw-empty-state>
+            </sw-card>
+        </sw-card-view>
+    </template>
+
+</sw-page>
+{% endblock %}

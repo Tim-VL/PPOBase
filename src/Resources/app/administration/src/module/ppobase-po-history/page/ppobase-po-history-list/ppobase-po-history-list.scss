@@ -1,0 +1,27 @@
+.ppobase-po-history-list {
+    .sw-card-view,
+    .sw-card,
+    .mt-card,
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+
+    &__po-number {
+        color: #189eff;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    &__date {
+        color: #52667a;
+        font-size: 13px;
+    }
+
+    &__description {
+        color: #374b5c;
+        line-height: 1.4;
+    }
+    .mt-card__content {
+        min-height: 250px;
+    }
+}

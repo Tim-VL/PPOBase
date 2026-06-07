@@ -1,0 +1,213 @@
+{% block ppobase_supplier_detail %}
+<sw-page class="ppobase-supplier-create">
+
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-supplier.create.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            class="mt-button--default"
+            v-tooltip.bottom="$tc('ppobase-supplier.create.buttonCancelTooltip')"
+            @click="onCancel">
+            {{ $tc('ppobase-supplier.create.buttonCancel') }}
+        </sw-button>
+
+        <sw-button-process
+            class="mt-button--default"
+            variant="primary"
+            :isLoading="isSaving"
+            @click="onSave">
+            {{ $tc('ppobase-supplier.create.buttonSave') }}
+        </sw-button-process>
+    </template>
+
+    <template #content>
+        <sw-card-view v-if="supplier">
+
+            <sw-loader v-if="isLoading"></sw-loader>
+
+            <template v-else>
+
+                {# ===== TABS NAVIGATION ===== #}
+                <sw-tabs
+                    :defaultItem="activeTab"
+                    @new-item-active="onChangeTab"
+                    position-identifier="ppobase-supplier-create">
+
+                    <sw-tabs-item name="general" @click="setActiveTab('general')">
+                        {{ $tc('ppobase-supplier.detail.tabGeneral') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item name="contacts" @click="setActiveTab('contacts')">
+                        {{ $tc('ppobase-supplier.detail.tabContacts') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item name="addresses" @click="setActiveTab('addresses')">
+                        {{ $tc('ppobase-supplier.detail.tabAddresses') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item name="conditions" @click="setActiveTab('conditions')">
+                        {{ $tc('ppobase-supplier.detail.tabConditions') }}
+                    </sw-tabs-item>
+
+                </sw-tabs>
+
+                {# ===== TAB: GENERAL ===== #}
+                <template v-if="activeTab === 'general'">
+                    <sw-card :title="$tc('ppobase-supplier.form.cardBasicInfo')">
+                        <sw-container columns="1fr 1fr 1fr" gap="0 30px">
+                            <sw-switch-field
+                                :label="$tc('ppobase-supplier.form.labelActive')"
+                                :helpText="$tc('ppobase-supplier.form.helpActive')"
+                                v-model:value="supplier.active"
+                                @change="onFormChange">
+                            </sw-switch-field>
+
+                            <sw-text-field
+                                :label="$tc('ppobase-supplier.form.labelItemsIdRange')"
+                                :helpText="$tc('ppobase-supplier.form.helpItemsIdRange')"
+                                :placeholder="$tc('ppobase-supplier.form.placeholderItemsIdRange')"
+                                v-model:value="supplier.itemsIdRange"
+                                @change="onFormChange">
+                            </sw-text-field>
+                        </sw-container>
+
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-text-field
+                                :label="$tc('ppobase-supplier.form.labelTradeName')"
+                                :helpText="$tc('ppobase-supplier.form.helpTradeName')"
+                                v-model:value="supplier.companyTradeName"
+                                required
+                                @change="onFormChange">
+                            </sw-text-field>
+
+                            <sw-text-field
+                                :label="$tc('ppobase-supplier.form.labelOfficialName')"
+                                :helpText="$tc('ppobase-supplier.form.helpOfficialName')"
+                                v-model:value="supplier.companyOfficialName"
+                                @change="onFormChange">
+                            </sw-text-field>
+                        </sw-container>
+
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-text-field
+                                :label="$tc('ppobase-supplier.form.labelDefaultCc')"
+                                :helpText="$tc('ppobase-supplier.form.helpDefaultCc')"
+                                :placeholder="$tc('ppobase-supplier.form.placeholderDefaultCc')"
+                                v-model:value="supplier.defaultCc"
+                                @change="onFormChange">
+                            </sw-text-field>
+
+                            <sw-text-field
+                                :label="$tc('ppobase-supplier.form.labelDefaultBcc')"
+                                :helpText="$tc('ppobase-supplier.form.helpDefaultBcc')"
+                                :placeholder="$tc('ppobase-supplier.form.placeholderDefaultBcc')"
+                                v-model:value="supplier.defaultBcc"
+                                @change="onFormChange">
+                            </sw-text-field>
+                        </sw-container>
+                    </sw-card>
+
+                    <sw-card :title="$tc('ppobase-supplier.form.cardCompanyDetails')">
+                        <sw-container columns="1fr 1fr 1fr" gap="0 30px">
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelCompanyNumber')" v-model:value="supplier.companyNumber" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelVatNumber')" v-model:value="supplier.vatNumber" @change="onFormChange"></sw-text-field>
+                            <sw-number-field :label="$tc('ppobase-supplier.form.labelVatPercent')" :helpText="$tc('ppobase-supplier.form.helpVatPercent')" v-model:value="supplier.vatPercent" :min="0" :max="100" :step="0.01" @change="onFormChange"></sw-number-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelTaxId')" v-model:value="supplier.taxId" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelExportNumber')" v-model:value="supplier.exportNumber" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelBusinessNumber')" v-model:value="supplier.businessNumber" @change="onFormChange"></sw-text-field>
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelCompanyEmail')" :helpText="$tc('ppobase-supplier.form.helpCompanyEmail')" :required="!supplier.generalEmail" v-model:value="supplier.companyEmail" @change="onFormChange"></sw-email-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelWebsite')" :placeholder="$tc('ppobase-supplier.form.placeholderWebsite')" v-model:value="supplier.website" @change="onFormChange"></sw-text-field>
+                        </sw-container>
+
+                        <sw-textarea-field :label="$tc('ppobase-supplier.form.labelNotes')" :placeholder="$tc('ppobase-supplier.form.placeholderNotes')" :modelValue="supplier.notes" @update:modelValue="onTextareaChange('notes', $event)"></sw-textarea-field>
+                    </sw-card>
+                </template>
+
+                {# ===== TAB: CONTACTS ===== #}
+                <template v-if="activeTab === 'contacts'">
+                    <sw-card :title="$tc('ppobase-supplier.form.cardPrimaryContact')">
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelContactFirstName')" v-model:value="supplier.contactFirstName" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelContactLastName')" v-model:value="supplier.contactLastName" @change="onFormChange"></sw-text-field>
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelContactEmail')" v-model:value="supplier.contactEmail" @change="onFormChange"></sw-email-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelContactPhone')" v-model:value="supplier.contactPhone" @change="onFormChange"></sw-text-field>
+                        </sw-container>
+                    </sw-card>
+
+                    <sw-card :title="$tc('ppobase-supplier.form.cardGeneralContact')">
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelGeneralEmail')" :helpText="$tc('ppobase-supplier.form.helpGeneralEmail')" :required="!supplier.companyEmail" v-model:value="supplier.generalEmail" @change="onFormChange"></sw-email-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelGeneralPhone')" v-model:value="supplier.generalPhone" @change="onFormChange"></sw-text-field>
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelPurchaseEmail')" :helpText="$tc('ppobase-supplier.form.helpPurchaseEmail')" v-model:value="supplier.purchaseEmail" @change="onFormChange"></sw-email-field>
+                        </sw-container>
+                    </sw-card>
+                </template>
+
+                {# ===== TAB: ADDRESSES ===== #}
+                <template v-if="activeTab === 'addresses'">
+                    <sw-card :title="$tc('ppobase-supplier.form.cardBillingAddress')">
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelAddressLine1')" v-model:value="supplier.billingAddressLine1" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelAddressLine2')" v-model:value="supplier.billingAddressLine2" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelCity')" v-model:value="supplier.billingCity" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelPostalCode')" v-model:value="supplier.billingPostalCode" @change="onFormChange"></sw-text-field>
+                            <sw-single-select :label="$tc('ppobase-supplier.form.labelCountry')" :placeholder="$tc('ppobase-supplier.form.placeholderCountry')" :options="countryOptions" v-model:value="supplier.billingCountry" @change="onFormChange"></sw-single-select>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelBillingContactPerson')" v-model:value="supplier.billingContactPerson" @change="onFormChange"></sw-text-field>
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelBillingContactEmail')" v-model:value="supplier.billingContactEmail" @change="onFormChange"></sw-email-field>
+                        </sw-container>
+                        <sw-textarea-field :label="$tc('ppobase-supplier.form.labelBillingNotes')" :modelValue="supplier.billingNotes" @update:modelValue="onTextareaChange('billingNotes', $event)"></sw-textarea-field>
+                    </sw-card>
+
+                    <sw-card :title="$tc('ppobase-supplier.form.cardShippingAddress')">
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelAddressLine1')" v-model:value="supplier.shippingAddressLine1" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelAddressLine2')" v-model:value="supplier.shippingAddressLine2" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelCity')" v-model:value="supplier.shippingCity" @change="onFormChange"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelPostalCode')" v-model:value="supplier.shippingPostalCode" @change="onFormChange"></sw-text-field>
+                            <sw-single-select :label="$tc('ppobase-supplier.form.labelCountry')" :placeholder="$tc('ppobase-supplier.form.placeholderCountry')" :options="countryOptions" v-model:value="supplier.shippingCountry" @change="onFormChange"></sw-single-select>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelShippingContactPerson')" v-model:value="supplier.shippingContactPerson" @change="onFormChange"></sw-text-field>
+                            <sw-email-field :label="$tc('ppobase-supplier.form.labelShippingContactEmail')" v-model:value="supplier.shippingContactEmail" @change="onFormChange"></sw-email-field>
+                        </sw-container>
+                        <sw-textarea-field :label="$tc('ppobase-supplier.form.labelShippingNotes')" :modelValue="supplier.shippingNotes" @update:modelValue="onTextareaChange('shippingNotes', $event)"></sw-textarea-field>
+                    </sw-card>
+                </template>
+
+                {# ===== TAB: CONDITIONS ===== #}
+                <template v-if="activeTab === 'conditions'">
+                    <sw-card :title="$tc('ppobase-supplier.form.cardCommercial')">
+                        <sw-container columns="1fr 1fr 1fr" gap="0 30px">
+                            <sw-single-select :label="$tc('ppobase-supplier.form.labelCurrency')" :options="currencyOptions" required v-model:value="supplier.currency" @change="onFormChange"></sw-single-select>
+                            <sw-text-field :label="$tc('ppobase-supplier.form.labelPaymentTerms')" :helpText="$tc('ppobase-supplier.form.helpPaymentTerms')" :placeholder="$tc('ppobase-supplier.form.placeholderPaymentTerms')" v-model:value="supplier.paymentTerms" @change="onFormChange"></sw-text-field>
+                            <sw-number-field :label="$tc('ppobase-supplier.form.labelMinimumOrderValue')" :helpText="$tc('ppobase-supplier.form.helpMinimumOrderValue')" v-model:value="supplier.minimumOrderValue" :min="0" :step="0.01" @change="onFormChange"></sw-number-field>
+                            <sw-single-select :label="$tc('ppobase-supplier.form.labelIncoterms')" :helpText="$tc('ppobase-supplier.form.helpIncoterms')" :options="incotermsOptions" v-model:value="supplier.incoterms" @change="onFormChange"></sw-single-select>
+                        </sw-container>
+                        <sw-textarea-field :label="$tc('ppobase-supplier.form.labelDiscountAgreements')" :helpText="$tc('ppobase-supplier.form.helpDiscountAgreements')" :placeholder="$tc('ppobase-supplier.form.placeholderDiscountAgreements')" :modelValue="supplier.discountAgreements" @update:modelValue="onTextareaChange('discountAgreements', $event)"></sw-textarea-field>
+                    </sw-card>
+
+                    <sw-card :title="$tc('ppobase-supplier.form.cardLogistics')">
+                        <sw-container columns="1fr 1fr" gap="0 30px">
+                            <sw-number-field :label="$tc('ppobase-supplier.form.labelLeadTimeDays')" :helpText="$tc('ppobase-supplier.form.helpLeadTimeDays')" v-model:value="supplier.leadTimeDays" :min="0" @change="onFormChange"></sw-number-field>
+                            <sw-multi-select :label="$tc('ppobase-supplier.form.labelDeliveryDays')" :helpText="$tc('ppobase-supplier.form.helpDeliveryDays')" :options="deliveryDaysOptions" v-model:value="selectedDeliveryDays" valueProperty="value" labelProperty="label"></sw-multi-select>
+                        </sw-container>
+                    </sw-card>
+                </template>
+
+            </template>
+        </sw-card-view>
+
+        {# ===== UNSAVED CHANGES MODAL ===== #}
+        <sw-modal v-if="showUnsavedChangesModal" :title="$tc('ppobase-supplier.create.unsavedChangesTitle')" @modal-close="onStay">
+            <p>{{ $tc('ppobase-supplier.create.unsavedChangesMessage') }}</p>
+            <template #modal-footer>
+                <sw-button size="small" @click="onStay">{{ $tc('ppobase-supplier.create.buttonStay') }}</sw-button>
+                <sw-button size="small" variant="danger" @click="onDiscardAndLeave">{{ $tc('ppobase-supplier.create.buttonDiscardAndLeave') }}</sw-button>
+                <sw-button size="small" variant="primary" @click="onSaveAndLeave">{{ $tc('ppobase-supplier.create.buttonSaveAndLeave') }}</sw-button>
+            </template>
+        </sw-modal>
+
+    </template>
+
+</sw-page>
+{% endblock %}

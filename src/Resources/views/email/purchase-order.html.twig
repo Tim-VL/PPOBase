@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'ppobase.email.subject'|trans({'%poNumber%': poNumber}) }}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f4f7; font-family: '{{ config.poFontFamily|default('Arial') }}', Arial, Helvetica, sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f7; padding: 40px 0;">
+    <tr>
+        <td align="center">
+            <table width="620" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:6px; overflow:hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+
+                {# ── Header ── #}
+                <tr>
+                    <td style="background-color:{{ config.poPrimaryColor|default('#1a1a2e') }}; padding: 32px 40px;">
+                        <h1 style="margin:0; color:#ffffff; font-size:22px; font-weight:600; letter-spacing:0.5px;">
+                            {{ senderName }}
+                        </h1>
+                        <p style="margin:6px 0 0; color:#a0a0c0; font-size:13px;">
+                            {{ 'ppobase.email.headerSubtitle'|trans }}
+                        </p>
+                    </td>
+                </tr>
+
+                {# ── Body ── #}
+                <tr>
+                    <td style="padding: 40px 40px 24px;">
+
+                        <p style="margin:0 0 16px; font-size:15px; color:#333333;">
+                            {{ 'ppobase.email.greeting'|trans({'%supplierName%': supplierName}) }}
+                        </p>
+
+                        <p style="margin:0 0 28px; font-size:15px; color:#555555; line-height:1.6;">
+                            {{ 'ppobase.email.intro'|trans({'%poNumber%': poNumber}) }}
+                        </p>
+
+                        {# ── PO Details Box ── #}
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="background-color:#f8f9fc; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:28px;">
+                            <tr>
+                                <td style="padding: 20px 24px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    {{ 'ppobase.email.labelPoNumber'|trans }}
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <strong style="font-size:15px; color:{{ config.poPrimaryColor|default('#1a1a2e') }};">{{ poNumber }}</strong>
+                                            </td>
+                                        </tr>
+                                        {% if purchaseOrder.orderDate %}
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    {{ 'ppobase.email.labelOrderDate'|trans }}
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:14px; color:#333333;">
+                                                    {{ purchaseOrder.orderDate|date('d F Y') }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if config.showExpectedDelivery|default(true) and purchaseOrder.expectedDeliveryDate %}
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    {{ 'ppobase.email.labelExpectedDelivery'|trans }}
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:14px; color:#333333;">
+                                                    {{ purchaseOrder.expectedDeliveryDate|date('d F Y') }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if config.showInternalReference|default(false) and purchaseOrder.internalReference is defined and purchaseOrder.internalReference %}
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    Internal Reference
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:14px; color:#333333;">
+                                                    {{ purchaseOrder.internalReference }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if config.showSupplierVat|default(true) and supplier.vatNumber is defined and supplier.vatNumber %}
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    VAT Number
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:14px; color:#333333;">
+                                                    {{ supplier.vatNumber }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                        <tr>
+                                            <td style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    {{ 'ppobase.email.labelItems'|trans }}
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0; border-bottom:1px solid #e2e8f0;">
+                                                <span style="font-size:14px; color:#333333;">{{ purchaseOrder.itemCount ?? 0 }}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 10px 0;">
+                                                <span style="font-size:12px; color:#888888; text-transform:uppercase; letter-spacing:0.6px;">
+                                                    {{ 'ppobase.email.labelTotal'|trans }}
+                                                </span>
+                                            </td>
+                                            <td align="right" style="padding: 10px 0;">
+                                                <strong style="font-size:16px; color:{{ config.poPrimaryColor|default('#1a1a2e') }};">
+                                                    {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.total|number_format(2, '.', ',') }}
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        {# ── Items Summary Table ── #}
+                        {% if purchaseOrder.items is defined and purchaseOrder.items|length > 0 %}
+                        {% set colCount = 5 %}
+                        {% if config.showEan|default(false) %}{% set colCount = colCount + 1 %}{% endif %}
+                        {% if config.showMpn|default(false) %}{% set colCount = colCount + 1 %}{% endif %}
+                        {% if config.showTaxColumn|default(true) %}{% set colCount = colCount + 2 %}{% endif %}
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="border-collapse:collapse; margin-bottom:28px; font-size:13px;">
+                            <thead>
+                                <tr style="background-color:{{ config.poPrimaryColor|default('#1a1a2e') }};">
+                                    <th style="padding:10px 12px; text-align:left; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; border-radius:4px 0 0 0;">
+                                        {{ 'ppobase.email.colProduct'|trans }}
+                                    </th>
+                                    <th style="padding:10px 12px; text-align:center; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        {{ 'ppobase.email.colSku'|trans }}
+                                    </th>
+                                    {% if config.showEan|default(false) %}
+                                    <th style="padding:10px 12px; text-align:center; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        EAN
+                                    </th>
+                                    {% endif %}
+                                    {% if config.showMpn|default(false) %}
+                                    <th style="padding:10px 12px; text-align:center; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        MPN
+                                    </th>
+                                    {% endif %}
+                                    <th style="padding:10px 12px; text-align:center; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        {{ 'ppobase.email.colQty'|trans }}
+                                    </th>
+                                    <th style="padding:10px 12px; text-align:right; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        {{ 'ppobase.email.colUnitPrice'|trans }}
+                                    </th>
+                                    {% if config.showTaxColumn|default(true) %}
+                                    <th style="padding:10px 12px; text-align:center; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        Tax %
+                                    </th>
+                                    <th style="padding:10px 12px; text-align:right; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">
+                                        Tax
+                                    </th>
+                                    {% endif %}
+                                    <th style="padding:10px 12px; text-align:right; color:#ffffff; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; border-radius:0 4px 0 0;">
+                                        {{ 'ppobase.email.colTotal'|trans }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in purchaseOrder.items %}
+                                <tr style="background-color:{{ loop.index is odd ? '#ffffff' : '#f8f9fc' }};">
+                                    <td style="padding:10px 12px; color:#333333; border-bottom:1px solid #e2e8f0;">
+                                        {{ item.productName }}
+                                    </td>
+                                    <td style="padding:10px 12px; color:#555555; text-align:center; border-bottom:1px solid #e2e8f0;">
+                                        {{ item.productNumber ?? '-' }}
+                                    </td>
+                                    {% if config.showEan|default(false) %}
+                                    <td style="padding:10px 12px; color:#555555; text-align:center; border-bottom:1px solid #e2e8f0;">
+                                        {{ item.ean ?? '-' }}
+                                    </td>
+                                    {% endif %}
+                                    {% if config.showMpn|default(false) %}
+                                    <td style="padding:10px 12px; color:#555555; text-align:center; border-bottom:1px solid #e2e8f0;">
+                                        {{ item.mpn ?? '-' }}
+                                    </td>
+                                    {% endif %}
+                                    <td style="padding:10px 12px; color:#555555; text-align:center; border-bottom:1px solid #e2e8f0;">
+                                        {{ item.quantityOrdered }} {{ item.unit }}
+                                    </td>
+                                    <td style="padding:10px 12px; color:#555555; text-align:right; border-bottom:1px solid #e2e8f0;">
+                                        {{ purchaseOrder.currency ?? 'EUR' }} {{ item.unitPrice|number_format(2, '.', ',') }}
+                                    </td>
+                                    {% if config.showTaxColumn|default(true) %}
+                                    <td style="padding:10px 12px; color:#555555; text-align:center; border-bottom:1px solid #e2e8f0;">
+                                        {% if item.taxRate is defined and item.taxRate > 0 %}{{ item.taxRate }}%{% else %}-{% endif %}
+                                    </td>
+                                    <td style="padding:10px 12px; color:#555555; text-align:right; border-bottom:1px solid #e2e8f0;">
+                                        {% if item.taxAmount is defined and item.taxAmount > 0 %}{{ purchaseOrder.currency ?? 'EUR' }} {{ item.taxAmount|number_format(2, '.', ',') }}{% else %}-{% endif %}
+                                    </td>
+                                    {% endif %}
+                                    <td style="padding:10px 12px; color:#333333; font-weight:600; text-align:right; border-bottom:1px solid #e2e8f0;">
+                                        {{ purchaseOrder.currency ?? 'EUR' }} {{ item.lineTotal|number_format(2, '.', ',') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                {% if config.showTaxColumn|default(true) and purchaseOrder.taxAmount is defined and purchaseOrder.taxAmount > 0 %}
+                                <tr>
+                                    <td colspan="{{ colCount - 1 }}" style="padding:10px 12px; text-align:right; color:#555555; font-size:13px;">
+                                        {{ 'ppobase.email.subtotal'|trans }}
+                                    </td>
+                                    <td style="padding:10px 12px; text-align:right; color:#333333; font-size:13px;">
+                                        {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.subtotal|number_format(2, '.', ',') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="{{ colCount - 1 }}" style="padding:10px 12px; text-align:right; color:#555555; font-size:13px;">
+                                        {{ 'ppobase.email.tax'|trans }}
+                                        {% if supplier.vatPercent is defined and supplier.vatPercent > 0 %}
+                                            ({{ supplier.vatPercent }}%)
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding:10px 12px; text-align:right; color:#333333; font-size:13px;">
+                                        {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.taxAmount|number_format(2, '.', ',') }}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr style="background-color:#f0f4ff;">
+                                    <td colspan="{{ colCount - 1 }}" style="padding:12px; text-align:right; color:{{ config.poPrimaryColor|default('#1a1a2e') }}; font-weight:700; font-size:14px;">
+                                        {{ 'ppobase.email.total'|trans }}
+                                    </td>
+                                    <td style="padding:12px; text-align:right; color:{{ config.poPrimaryColor|default('#1a1a2e') }}; font-weight:700; font-size:15px;">
+                                        {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.total|number_format(2, '.', ',') }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        {% endif %}
+
+                        <p style="margin:0 0 16px; font-size:15px; color:#555555; line-height:1.6;">
+                            {{ 'ppobase.email.closing'|trans }}
+                        </p>
+
+                        <p style="margin:0; font-size:15px; color:#555555;">
+                            {{ 'ppobase.email.regards'|trans }}<br>
+                            <strong style="color:{{ config.poPrimaryColor|default('#1a1a2e') }};">{{ senderName }}</strong>
+                        </p>
+                    </td>
+                </tr>
+
+                {# ── Footer ── #}
+                <tr>
+                    <td style="background-color:#f8f9fc; border-top:1px solid #e2e8f0; padding: 20px 40px; text-align:center;">
+                        <p style="margin:0; font-size:12px; color:#aaaaaa; line-height:1.6;">
+                            {{ 'ppobase.email.confidentiality'|trans }}<br>
+                            &copy; {{ poDate|split(' ')|last }} {{ senderName }}. {{ 'ppobase.email.allRightsReserved'|trans }}
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

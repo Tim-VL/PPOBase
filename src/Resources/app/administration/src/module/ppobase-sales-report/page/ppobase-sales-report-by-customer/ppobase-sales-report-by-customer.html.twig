@@ -1,0 +1,89 @@
+{% block ppobase_sales_report_by_customer %}
+<sw-page class="ppobase-sales-report">
+    <template #content>
+        <sw-card-view>
+            <div class="ppobase-sales-report__search-bar">
+                <sw-simple-search-field
+                    v-model:value="searchTerm"
+                    :placeholder="$tc('ppobase-sales-report.byCustomer.searchPlaceholder')"
+                    :delay="350"
+                    @search-term-change="onSearchTermChange">
+                </sw-simple-search-field>
+
+                <sw-card v-if="searchResults && searchResults.length">
+                    <sw-data-grid
+                        :dataSource="searchResults"
+                        :columns="customerColumns"
+                        :showSelection="false"
+                        :allowInlineEdit="false"
+                        :isLoading="isSearching">
+                        <template #column-name="{ item }">
+                            <a class="ppobase-sales-report__link" @click.prevent="onSelectCustomer(item)">{{ item.name }}</a>
+                        </template>
+                    </sw-data-grid>
+                </sw-card>
+            </div>
+
+            <div class="ppobase-sales-report__date-filter">
+                <sw-datepicker v-model:value="dateFrom" :label="$tc('ppobase-sales-report.common.labelDateFrom')" dateType="date" size="small"></sw-datepicker>
+                <sw-datepicker v-model:value="dateTo" :label="$tc('ppobase-sales-report.common.labelDateTo')" dateType="date" size="small"></sw-datepicker>
+                <sw-button variant="primary" size="small" @click="onApplyFilter">{{ $tc('ppobase-sales-report.common.buttonApply') }}</sw-button>
+                <sw-button variant="ghost" size="small" @click="onResetFilter">{{ $tc('ppobase-sales-report.common.buttonReset') }}</sw-button>
+            </div>
+
+            <sw-empty-state v-if="!selectedCustomerId" :title="$tc('ppobase-sales-report.byCustomer.selectPrompt')"></sw-empty-state>
+
+            <template v-else>
+                <div class="ppobase-sales-report__customer-info" v-if="report">
+                    <div><strong>{{ customerName }}</strong></div>
+                    <div>{{ report.customer ? report.customer.email : '-' }}</div>
+                    <div>{{ report.customer ? (report.customer.company || '-') : '-' }}</div>
+                    <div>{{ $tc('ppobase-sales-report.byCustomer.labelTotalOrders') }}: {{ report.summary ? report.summary.totalOrders : 0 }}</div>
+                    <div>{{ $tc('ppobase-sales-report.byCustomer.labelTotalSpent') }}: {{ formatMoney(report.summary ? report.summary.totalSpent : 0) }}</div>
+                </div>
+
+                <div class="ppobase-sales-report__chart-row" v-if="report && report.chartData">
+                    <div class="ppobase-sales-report__chart-container">
+                        <h4>{{ $tc('ppobase-sales-report.byCustomer.chartPieTitle') }}</h4>
+                        <div style="position: relative; height: 350px; width: 100%;">
+                            <canvas id="ppobase-sales-report-by-customer-pie"></canvas>
+                        </div>
+                    </div>
+                    <div class="ppobase-sales-report__chart-container">
+                        <h4>{{ $tc('ppobase-sales-report.byCustomer.chartLineTitle') }}</h4>
+                        <div style="position: relative; height: 350px; width: 100%;">
+                            <canvas id="ppobase-sales-report-by-customer-line"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <sw-card :title="$tc('ppobase-sales-report.byCustomer.title')" :isLoading="isLoading">
+                    <sw-data-grid
+                        v-if="pagedGridItems && pagedGridItems.length"
+                        :dataSource="pagedGridItems"
+                        :columns="itemColumns"
+                        :showSelection="false"
+                        :allowInlineEdit="false"
+                        @column-sort="onColumnSort">
+                        <template #column-product_name="{ item }">
+                            <a class="ppobase-sales-report__link" @click.prevent="onProductClick(item)">{{ item.product_name }}</a>
+                        </template>
+                        <template #column-total_spent="{ item }">{{ formatMoney(item.total_spent) }}</template>
+                        <template #column-avg_price="{ item }">{{ formatMoney(item.avg_price) }}</template>
+                    </sw-data-grid>
+
+                    <sw-pagination
+                        v-if="total > 0"
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :steps="[10, 25, 50, 100]"
+                        @page-change="onPageChange">
+                    </sw-pagination>
+                    <sw-empty-state v-else :title="$tc('ppobase-sales-report.byCustomer.emptyState')"></sw-empty-state>
+                </sw-card>
+            </template>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

@@ -1,0 +1,89 @@
+<div class="ppobase-product-stock-bookings">
+    <sw-card class="ppobase-current-stock-card" :title="$tc('ppobase-product.stock.cardCurrentStock')" :isLoading="isLoading">
+        <div class="ppobase-stock-value">
+            <span>{{ product ? product.stock : 0 }}</span>
+            <span class="ppobase-stock-label">{{ $tc('ppobase-product.stock.labelCurrentStock') }}</span>
+        </div>
+    </sw-card>
+
+    <sw-card :title="$tc('ppobase-product.stock.cardAdjustStock')" :isLoading="isLoading">
+        <sw-container columns="1fr 1fr" gap="0 16px">
+            <sw-text-field
+                v-model:value="form.stockAdjustment"
+                :label="$tc('ppobase-product.stock.labelStockAdjustment')"
+                :placeholder="$tc('ppobase-product.stock.placeholderStockAdjustment')"
+                @update:value="onStockAdjustmentChange"
+            />
+
+            <div>
+                <sw-single-select
+                    v-model:value="form.reason"
+                    :label="$tc('ppobase-product.stock.labelReason')"
+                    :options="reasonOptions"
+                    value-property="value"
+                    label-property="label"
+                />
+                <sw-text-field
+                    v-if="isCustomReason"
+                    v-model:value="customReason"
+                    :label="$tc('ppobase-product.stock.labelCustomReason')"
+                    :placeholder="$tc('ppobase-product.stock.placeholderCustomReason')"
+                    class="mt-2"
+                />
+            </div>
+        </sw-container>
+
+        <sw-textarea-field
+            :modelValue="form.notes"
+            @update:modelValue="form.notes = $event"
+            :label="$tc('ppobase-product.stock.labelNotes')"
+            rows="3"
+        />
+
+        <sw-button-process
+            variant="primary"
+            :isLoading="isSaving"
+            @click="onApplyStock"
+        >
+            {{ $tc('ppobase-product.stock.buttonApply') }}
+        </sw-button-process>
+    </sw-card>
+
+    <sw-card class="ppobase-stock-bookings-grid" :title="$tc('ppobase-product.stock.cardStockBookings')" :isLoading="isLoading">
+        <sw-data-grid
+            :dataSource="stockBookings"
+            :columns="bookingColumns"
+            :showActions="false"
+            :showSelection="false"
+        >
+            <template #column-bookedAt="{ item }">
+                {{ formatDate(item.bookedAt) }}
+            </template>
+
+            <template #column-stockChange="{ item }">
+                {{ formatChange(item.stockChange) }}
+            </template>
+        </sw-data-grid>
+
+        <sw-empty-state v-if="!stockBookings.length" :title="$tc('ppobase-product.stock.emptyBookings')" />
+    </sw-card>
+
+    <sw-card class="ppobase-goods-receipts-grid" :title="$tc('ppobase-product.stock.cardGoodsReceipts')" :isLoading="isLoading">
+        <sw-data-grid
+            :dataSource="goodsReceipts"
+            :columns="goodsReceiptColumns"
+            :showActions="false"
+            :showSelection="false"
+        >
+            <template #column-receiptNumber="{ item }">
+                <a href="#" @click.prevent="onOpenGoodsReceipt(item)">{{ item.receiptNumber }}</a>
+            </template>
+
+            <template #column-receiptDate="{ item }">
+                {{ formatDate(item.receiptDate) }}
+            </template>
+        </sw-data-grid>
+
+        <sw-empty-state v-if="!goodsReceipts.length" :title="$tc('ppobase-product.stock.emptyReceipts')" />
+    </sw-card>
+</div>

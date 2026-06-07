@@ -1,0 +1,56 @@
+{
+    "ppobase-po-history": {
+        "general": {
+            "mainMenuLabel": "Bestellhistorie",
+            "description": "Aktivitätsverlauf der Bestellungen"
+        },
+        "list": {
+            "title": "Bestellhistorie",
+            "cardTitle": "Aktivitätsverlauf",
+            "searchPlaceholder": "Nach Bestellnummer oder Beschreibung suchen...",
+            "buttonRefresh": "Aktualisieren",
+            "errorTitle": "Fehler beim Laden der Historie",
+            "emptyTitle": "Noch keine Bestellaktivitäten vorhanden",
+            "emptySubline": "Ereignisse erscheinen hier, sobald Bestellungen erstellt, aktualisiert oder verarbeitet werden.",
+            "filterAction": "Ereignistyp",
+            "filterAll": "Alle Ereignisse",
+            "columnDate": "Datum",
+            "columnPONumber": "Bestellnummer",
+            "columnEvent": "Ereignis",
+            "columnDescription": "Beschreibung",
+            "columnUser": "Benutzer",
+            "actionCreated": "Erstellt",
+            "actionUpdated": "Aktualisiert",
+            "actionDeleted": "Gelöscht",
+            "actionStatusChanged": "Status geändert",
+            "actionExported": "Exportiert",
+            "actionEmailed": "Per E-Mail gesendet",
+            "actionItemsAdded": "Artikel hinzugefügt",
+            "actionItemsRemoved": "Artikel entfernt",
+            "actionViewChanges": "Änderungen anzeigen"
+        },
+        "detail": {
+            "title": "Ereignisdetails",
+            "buttonBack": "Zurück zur Historie",
+            "errorTitle": "Fehler",
+            "notFoundMessage": "Historien-Eintrag nicht gefunden.",
+            "cardOverview": "Ereignisdetails",
+            "cardChanges": "Was geändert wurde",
+            "cardRelatedEvents": "Weitere Ereignisse für diese Bestellung",
+            "labelPONumber": "Bestellnummer",
+            "labelEvent": "Ereignis",
+            "labelDate": "Datum & Uhrzeit",
+            "labelUser": "Durchgeführt von",
+            "labelEntityType": "Typ",
+            "labelIpAddress": "IP-Adresse",
+            "labelDescription": "Beschreibung",
+            "columnField": "Feld",
+            "columnBefore": "Vorher",
+            "columnAfter": "Nachher",
+            "columnDate": "Datum",
+            "columnEvent": "Ereignis",
+            "columnDescription": "Beschreibung",
+            "columnUser": "Benutzer"
+        }
+    }
+}

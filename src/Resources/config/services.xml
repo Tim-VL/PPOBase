@@ -1,0 +1,224 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- Entity Definitions -->
+        <service id="PPOBase\Entity\Supplier\SupplierDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_supplier"/>
+        </service>
+
+        <service id="PPOBase\Entity\SupplierProduct\SupplierProductDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_supplier_product"/>
+        </service>
+
+        <service id="PPOBase\Entity\PurchaseOrder\PurchaseOrderDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_purchase_order"/>
+        </service>
+
+        <service id="PPOBase\Entity\PurchaseOrderItem\PurchaseOrderItemDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_purchase_order_item"/>
+        </service>
+
+        <service id="PPOBase\Entity\ActivityLog\ActivityLogDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_activity_log"/>
+        </service>
+
+        <service id="PPOBase\Entity\GoodsReceipt\GoodsReceiptDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_goods_receipt"/>
+        </service>
+
+        <service id="PPOBase\Entity\GoodsReceiptItem\GoodsReceiptItemDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_goods_receipt_item"/>
+        </service>
+
+        <service id="PPOBase\Entity\ProductExtension\ProductExtensionDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_product_extension"/>
+        </service>
+
+        <service id="PPOBase\Entity\StockBooking\StockBookingDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_stock_booking"/>
+        </service>
+
+        <!-- Grouped Product Entity -->
+        <service id="PPOBase\Entity\GroupedProduct\GroupedProductDefinition">
+            <tag name="shopware.entity.definition" entity="ppobase_grouped_product"/>
+        </service>
+
+        <!-- Services -->
+
+        <!-- Grouped Product Service -->
+        <service id="PPOBase\Service\GroupedProductService">
+            <argument type="service" id="ppobase_grouped_product.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="PPOBase\Service\ActivityLogService">
+            <argument type="service" id="ppobase_activity_log.repository"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <service id="PPOBase\Service\PurchaseOrderPdfService">
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="PPOBase\Service\GoodsReceiptService">
+            <argument type="service" id="ppobase_goods_receipt.repository"/>
+            <argument type="service" id="ppobase_goods_receipt_item.repository"/>
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <argument type="service" id="ppobase_purchase_order_item.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+        </service>
+
+        <service id="PPOBase\Service\StockBookingService">
+            <argument type="service" id="ppobase_stock_booking.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="request_stack"/>
+        </service>
+
+        <!-- Cart Processor: zeros prices of grouped-product children after ProductCartProcessor enriches them -->
+        <service id="PPOBase\Cart\GroupedProductCartProcessor">
+            <argument type="service" id="PPOBase\Service\GroupedProductService"/>
+            <tag name="shopware.cart.processor" priority="1000"/>
+        </service>
+
+        <!-- Event Subscribers -->
+
+        <!-- Cart Subscriber: adds grouped-product children as real product line items before calculation/persistence -->
+        <service id="PPOBase\Subscriber\GroupedProductCartSubscriber">
+            <argument type="service" id="PPOBase\Service\GroupedProductService"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- Storefront Subscriber: enriches product detail page with children data -->
+        <service id="PPOBase\Subscriber\GroupedProductStorefrontSubscriber">
+            <argument type="service" id="PPOBase\Service\GroupedProductService"/>
+            <argument type="service" id="product.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PPOBase\Subscriber\SupplierSubscriber">
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="ppobase_supplier.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PPOBase\Subscriber\PurchaseOrderSubscriber">
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PPOBase\Subscriber\SupplierProductSubscriber">
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="ppobase_supplier_product.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="ppobase_supplier.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PPOBase\Subscriber\ProductNameSyncSubscriber">
+            <argument type="service" id="ppobase_purchase_order_item.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="PPOBase\Subscriber\GoodsReceiptSubscriber">
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="ppobase_goods_receipt.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- API Controllers -->
+
+        <!-- Grouped Product API Controller -->
+        <service id="PPOBase\Controller\Api\GroupedProductController" public="true">
+            <argument type="service" id="ppobase_grouped_product.repository"/>
+            <argument type="service" id="PPOBase\Service\GroupedProductService"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\SupplierController" public="true">
+            <argument type="service" id="ppobase_supplier.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\PurchaseOrderController" public="true">
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <argument type="service" id="ppobase_activity_log.repository"/>
+            <argument type="service" id="PPOBase\Service\PurchaseOrderPdfService"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="mailer"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="twig"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\ActivityLogController" public="true">
+            <argument type="service" id="ppobase_activity_log.repository"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\GoodsReceiptController" public="true">
+            <argument type="service" id="PPOBase\Service\GoodsReceiptService"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\ProductExtensionController" public="true">
+            <argument type="service" id="ppobase_product_extension.repository"/>
+            <argument type="service" id="ppobase_stock_booking.repository"/>
+            <argument type="service" id="ppobase_supplier_product.repository"/>
+            <argument type="service" id="ppobase_purchase_order_item.repository"/>
+            <argument type="service" id="ppobase_goods_receipt_item.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <argument type="service" id="ppobase_supplier.repository"/>
+            <argument type="service" id="PPOBase\Service\StockBookingService"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="order_line_item.repository"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\SalesReportController" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            
+        </service>
+
+        <service id="PPOBase\Service\ManualOrderService">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+            <argument type="service" id="PPOBase\Service\GroupedProductService"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="PPOBase\Controller\Api\ManualOrderController" public="true">
+            <argument type="service" id="PPOBase\Service\ManualOrderService"/>
+            <argument type="service" id="PPOBase\Service\ActivityLogService"/>
+        </service>
+
+        <!-- Console Commands -->
+        <service id="PPOBase\Command\SeedDemoDataCommand">
+            <argument type="service" id="ppobase_supplier.repository"/>
+            <argument type="service" id="ppobase_purchase_order.repository"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="PPOBase\Service\ManualOrderService"/>
+            <tag name="console.command"/>
+        </service>
+    </services>
+</container>

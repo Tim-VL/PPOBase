@@ -1,0 +1,33 @@
+.ppobase-product-stock-bookings {
+    display: grid;
+    gap: 16px;
+
+    .ppobase-stock-bookings-grid,
+    .ppobase-goods-receipts-grid {
+        .mt-card__content {
+            min-height: 350px;
+        }
+    }
+
+    .ppobase-current-stock-card {
+        .mt-card__content {
+            padding: 16px 24px;
+        }
+
+        .ppobase-stock-value {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1.2;
+
+            .ppobase-stock-label {
+                font-size: 14px;
+                font-weight: 400;
+                color: #6b7280;
+            }
+        }
+    }
+}

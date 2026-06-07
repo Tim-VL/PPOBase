@@ -1,0 +1,20 @@
+.ppobase-supplier-list {
+    .sw-page__smart-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .sw-button {
+            height: 40px;
+            line-height: 40px;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    .mt-button--default {
+        height: 45px;
+    }
+
+
+}

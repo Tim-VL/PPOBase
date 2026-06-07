@@ -1,0 +1,84 @@
+<sw-page class="ppobase-manual-order-list">
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-manual-order.list.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-search-bar
+            :initial-search-type="$tc('ppobase-manual-order.list.title')"
+            :initial-search="searchTerm"
+            @search="onSearch">
+        </sw-search-bar>
+
+        <sw-button
+            variant="secondary"
+            :disabled="isLoading || (orders.length === 0 && selectedOrders.length === 0)"
+            @click="onBulkExportCsv">
+            {{ $tc('ppobase-manual-order.list.buttonBulkExportCsv') }}
+        </sw-button>
+
+        <sw-button variant="primary" @click="onCreateOrder">
+            {{ $tc('ppobase-manual-order.list.buttonCreate') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card :isLoading="isLoading" :title="$tc('ppobase-manual-order.list.title')">
+                <template v-if="orders.length === 0 && !isLoading">
+                    <sw-empty-state :title="$tc('ppobase-manual-order.list.emptyState')">
+                    </sw-empty-state>
+                </template>
+
+                <template v-else>
+                    <sw-data-grid
+                        :dataSource="orders"
+                        :columns="columns"
+                        :showSelection="true"
+                        :showActions="true"
+                        identifier="ppobase-manual-order-list"
+                        @selection-change="onSelectionChange"
+                    >
+                        <template #column-orderNumber="{ item }">
+                            <a class="ppobase-manual-order-list__link" @click.prevent="onViewOrder(item.orderId)">
+                                {{ item.orderNumber }}
+                            </a>
+                        </template>
+
+                        <template #column-total="{ item }">
+                            {{ formatCurrency(item.total, item.currency) }}
+                        </template>
+
+                        <template #column-createdAt="{ item }">
+                            {{ formatDate(item.createdAt) }}
+                        </template>
+
+                        <template #actions="{ item }">
+                            <sw-context-menu-item @click="onViewOrder(item.orderId)">
+                                {{ $tc('ppobase-manual-order.list.actionViewOrder') }}
+                            </sw-context-menu-item>
+                            <sw-context-menu-item @click="onPrintInvoice(item.orderId)">
+                                {{ $tc('ppobase-manual-order.list.actionPrintInvoice') }}
+                            </sw-context-menu-item>
+                            <sw-context-menu-item @click="onPrintDeliveryNote(item.orderId)">
+                                {{ $tc('ppobase-manual-order.list.actionPrintDeliveryNote') }}
+                            </sw-context-menu-item>
+                            <sw-context-menu-item @click="onExportExcel(item.orderId, item.orderNumber)">
+                                {{ $tc('ppobase-manual-order.list.actionExportExcel') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-data-grid>
+
+                    <sw-pagination
+                        v-if="total > 0"
+                        :page="page"
+                        :limit="limit"
+                        :total="total"
+                        :steps="[10, 25, 50, 100]"
+                        @page-change="onPageChange">
+                    </sw-pagination>
+                </template>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>

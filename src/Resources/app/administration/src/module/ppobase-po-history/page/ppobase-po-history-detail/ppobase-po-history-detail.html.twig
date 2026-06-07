@@ -1,0 +1,197 @@
+{% block ppobase_po_history_detail %}
+<sw-page class="ppobase-po-history-detail">
+
+    <template #smart-bar-header>
+        <h2>{{ pageTitle }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onBack">
+            {{ $tc('ppobase-po-history.detail.buttonBack') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view v-if="log">
+
+            {# ===== EVENT OVERVIEW ===== #}
+            <sw-card
+                :title="$tc('ppobase-po-history.detail.cardOverview')"
+                :isLoading="isLoading">
+
+                <div class="ppobase-po-history-detail__overview">
+                    <sw-container columns="1fr 1fr 1fr" gap="20px">
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelPONumber') }}
+                            </label>
+                            <span class="ppobase-po-history-detail__value ppobase-po-history-detail__value--po">
+                                {{ log.referenceNumber || '—' }}
+                            </span>
+                        </div>
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelEvent') }}
+                            </label>
+                            <sw-label
+                                :variant="getActionVariant(log.action)"
+                                size="default"
+                                appearance="pill">
+                                {{ getActionLabel(log.action) }}
+                            </sw-label>
+                        </div>
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelDate') }}
+                            </label>
+                            <span class="ppobase-po-history-detail__value">
+                                {{ formatDate(log.loggedAt) }}
+                            </span>
+                        </div>
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelUser') }}
+                            </label>
+                            <span class="ppobase-po-history-detail__value">
+                                {{ log.userName || '—' }}
+                            </span>
+                        </div>
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelEntityType') }}
+                            </label>
+                            <span class="ppobase-po-history-detail__value">
+                                {{ log.entityType === 'purchase_order' ? 'Purchase Order' : 'PO Item' }}
+                            </span>
+                        </div>
+
+                        <div class="ppobase-po-history-detail__field">
+                            <label class="ppobase-po-history-detail__label">
+                                {{ $tc('ppobase-po-history.detail.labelIpAddress') }}
+                            </label>
+                            <span class="ppobase-po-history-detail__value">
+                                {{ log.ipAddress || '—' }}
+                            </span>
+                        </div>
+
+                    </sw-container>
+
+                    <div v-if="log.description" class="ppobase-po-history-detail__description">
+                        <label class="ppobase-po-history-detail__label">
+                            {{ $tc('ppobase-po-history.detail.labelDescription') }}
+                        </label>
+                        <p class="ppobase-po-history-detail__description-text">{{ log.description }}</p>
+                    </div>
+                </div>
+
+            </sw-card>
+
+            {# ===== CHANGES DIFF ===== #}
+            <sw-card
+                v-if="changedFields.length > 0"
+                :title="$tc('ppobase-po-history.detail.cardChanges')">
+
+                <sw-data-grid
+                    :dataSource="changedFields"
+                    :columns="diffColumns"
+                    :showSelection="false"
+                    :showActions="false">
+
+                    <template #column-field="{ item }">
+                        <strong>{{ item.field }}</strong>
+                    </template>
+
+                    <template #column-oldValue="{ item }">
+                        <span :class="{ 'ppobase-po-history-detail__diff--removed': item.changed }">
+                            {{ item.oldValue }}
+                        </span>
+                    </template>
+
+                    <template #column-newValue="{ item }">
+                        <span :class="{ 'ppobase-po-history-detail__diff--added': item.changed }">
+                            {{ item.newValue }}
+                        </span>
+                    </template>
+
+                </sw-data-grid>
+
+            </sw-card>
+
+            {# ===== RAW VALUES FALLBACK ===== #}
+            <sw-card
+                v-else-if="log.oldValues || log.newValues"
+                :title="$tc('ppobase-po-history.detail.cardChanges')">
+
+                <sw-container columns="1fr 1fr" gap="20px">
+                    <div v-if="log.oldValues">
+                        <label class="ppobase-po-history-detail__label">
+                            {{ $tc('ppobase-po-history.detail.columnBefore') }}
+                        </label>
+                        <pre class="ppobase-po-history-detail__raw">{{ log.oldValues }}</pre>
+                    </div>
+                    <div v-if="log.newValues">
+                        <label class="ppobase-po-history-detail__label">
+                            {{ $tc('ppobase-po-history.detail.columnAfter') }}
+                        </label>
+                        <pre class="ppobase-po-history-detail__raw">{{ log.newValues }}</pre>
+                    </div>
+                </sw-container>
+
+            </sw-card>
+
+            {# ===== RELATED EVENTS FOR SAME PO ===== #}
+            <sw-card
+                v-if="relatedLogs && relatedLogs.length > 0"
+                :title="$tc('ppobase-po-history.detail.cardRelatedEvents')"
+                :isLoading="isLoadingRelated">
+
+                <sw-data-grid
+                    :dataSource="relatedLogs"
+                    :columns="relatedLogColumns"
+                    :showSelection="false"
+                    :showActions="true">
+
+                    <template #column-loggedAt="{ item }">
+                        {{ formatDate(item.loggedAt) }}
+                    </template>
+
+                    <template #column-action="{ item }">
+                        <sw-label
+                            :variant="getActionVariant(item.action)"
+                            size="small"
+                            appearance="pill">
+                            {{ getActionLabel(item.action) }}
+                        </sw-label>
+                    </template>
+
+                    <template #column-description="{ item }">
+                        {{ item.description || '—' }}
+                    </template>
+
+                    <template #column-userName="{ item }">
+                        {{ item.userName || '—' }}
+                    </template>
+
+                    <template #actions="{ item }">
+                        <sw-context-menu-item @click="onRelatedClick(item)">
+                            {{ $tc('ppobase-po-history.list.actionViewChanges') }}
+                        </sw-context-menu-item>
+                    </template>
+
+                </sw-data-grid>
+
+            </sw-card>
+
+        </sw-card-view>
+
+        <sw-loader v-else-if="isLoading"></sw-loader>
+
+    </template>
+
+</sw-page>
+{% endblock %}

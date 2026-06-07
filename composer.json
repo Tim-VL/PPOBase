@@ -1,0 +1,42 @@
+{
+    "name": "ppobase/ppobase",
+    "description": "PPOBase - A comprehensive ERP module for Shopware 6. Manages suppliers, purchase orders, goods receipts, stock bookings, manual sales orders, sales reports, and activity logging.",
+    "version": "1.1.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Priyanshu Nandan",
+            "email": "priyanshun8991@gmail.com"
+        }
+    ],
+    "require": {
+        "shopware/core": "~6.7.0",
+        "dompdf/dompdf": "^3.1"
+    },
+    "extra": {
+        "shopware-plugin-class": "PPOBase\\PPOBase",
+        "label": {
+            "de-DE": "PPOBase ERP Modul",
+            "en-GB": "PPOBase ERP Module"
+        },
+        "description": {
+            "de-DE": "PPOBase ist ein umfassendes ERP-Modul für Shopware 6. Es verwaltet Lieferanten, Bestellungen, Wareneingänge, Lagerbuchungen, manuelle Verkaufsaufträge, Verkaufsberichte und Aktivitätsprotokolle – alles direkt im Shopware-Adminbereich.",
+            "en-GB": "PPOBase is a comprehensive ERP module for Shopware 6. It manages suppliers, purchase orders, goods receipts, stock bookings, manual sales orders, sales reports, and activity logging — all directly within the Shopware administration."
+        },
+        "releaseDate": "2026-04-20",
+        "manufacturerLink": {
+            "de-DE": "https://github.com/Tim-VL/POBase",
+            "en-GB": "https://github.com/Tim-VL/POBase"
+        },
+        "supportLink": {
+            "de-DE": "https://github.com/Tim-VL/POBase/issues",
+            "en-GB": "https://github.com/Tim-VL/POBase/issues"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "PPOBase\\": "src/"
+        }
+    }
+}

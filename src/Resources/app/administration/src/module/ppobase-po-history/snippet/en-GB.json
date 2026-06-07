@@ -1,0 +1,56 @@
+{
+    "ppobase-po-history": {
+        "general": {
+            "mainMenuLabel": "PO History",
+            "description": "Purchase Order activity timeline"
+        },
+        "list": {
+            "title": "Purchase Order History",
+            "cardTitle": "Activity Timeline",
+            "searchPlaceholder": "Search by PO number or description...",
+            "buttonRefresh": "Refresh",
+            "errorTitle": "Error loading history",
+            "emptyTitle": "No purchase order activity yet",
+            "emptySubline": "Events will appear here as purchase orders are created, updated, or processed.",
+            "filterAction": "Event Type",
+            "filterAll": "All Events",
+            "columnDate": "Date",
+            "columnPONumber": "PO Number",
+            "columnEvent": "Event",
+            "columnDescription": "Description",
+            "columnUser": "User",
+            "actionCreated": "Created",
+            "actionUpdated": "Updated",
+            "actionDeleted": "Deleted",
+            "actionStatusChanged": "Status Changed",
+            "actionExported": "Exported",
+            "actionEmailed": "Emailed",
+            "actionItemsAdded": "Items Added",
+            "actionItemsRemoved": "Items Removed",
+            "actionViewChanges": "View changes"
+        },
+        "detail": {
+            "title": "Event Details",
+            "buttonBack": "Back to history",
+            "errorTitle": "Error",
+            "notFoundMessage": "History entry not found.",
+            "cardOverview": "Event Details",
+            "cardChanges": "What Changed",
+            "cardRelatedEvents": "Other Events for This PO",
+            "labelPONumber": "PO Number",
+            "labelEvent": "Event",
+            "labelDate": "Date & Time",
+            "labelUser": "Performed By",
+            "labelEntityType": "Type",
+            "labelIpAddress": "IP Address",
+            "labelDescription": "Description",
+            "columnField": "Field",
+            "columnBefore": "Before",
+            "columnAfter": "After",
+            "columnDate": "Date",
+            "columnEvent": "Event",
+            "columnDescription": "Description",
+            "columnUser": "User"
+        }
+    }
+}

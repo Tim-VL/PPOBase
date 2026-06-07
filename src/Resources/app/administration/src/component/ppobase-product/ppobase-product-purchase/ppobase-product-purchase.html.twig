@@ -1,0 +1,124 @@
+<div class="ppobase-product-purchase">
+    <sw-card :title="$tc('ppobase-product.purchase.cardSuppliers')" :isLoading="isLoading">
+        <template #toolbar>
+            <sw-button variant="primary" @click="onOpenAddSupplierModal">
+                {{ $tc('ppobase-product.purchase.buttonAddSupplier') }}
+            </sw-button>
+        </template>
+
+        <sw-data-grid
+            :dataSource="suppliers"
+            :columns="supplierColumns"
+            :showSelection="false"
+            :showActions="true"
+        >
+            <template #actions="{ item }">
+                <sw-context-menu-item variant="danger" @click="onRemoveSupplier(item)">
+                    {{ $tc('ppobase-product.purchase.buttonRemove') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-data-grid>
+
+        <sw-empty-state v-if="!suppliers.length" :title="$tc('ppobase-product.purchase.emptySuppliers')" />
+    </sw-card>
+
+    <sw-card :title="$tc('ppobase-product.purchase.cardPurchaseOrders')" :isLoading="isLoading">
+        <template #toolbar>
+            <sw-button variant="primary" @click="onOpenAddToPoModal">
+                {{ $tc('ppobase-product.purchase.buttonAddToPo') }}
+            </sw-button>
+        </template>
+
+        <sw-data-grid
+            :dataSource="purchaseOrders"
+            :columns="purchaseOrderColumns"
+            :showSelection="false"
+            :showActions="false"
+        >
+            <template #column-poNumber="{ item }">
+                <a :href="getPurchaseOrderHref(item)" target="_blank" rel="noopener">{{ item.poNumber }}</a>
+            </template>
+
+            <template #column-orderDate="{ item }">
+                {{ formatDate(item.orderDate) }}
+            </template>
+
+            <template #column-expectedDeliveryDate="{ item }">
+                {{ formatDate(item.expectedDeliveryDate) }}
+            </template>
+        </sw-data-grid>
+
+        <sw-empty-state v-if="!purchaseOrders.length" :title="$tc('ppobase-product.purchase.emptyPurchaseOrders')" />
+    </sw-card>
+
+    <sw-modal v-if="showAddSupplierModal" :title="$tc('ppobase-product.purchase.addSupplierTitle')" @modal-close="showAddSupplierModal = false">
+        <sw-entity-single-select
+            v-model:value="addSupplierForm.supplierId"
+            entity="ppobase_supplier"
+            :label="$tc('ppobase-product.purchase.labelSelectSupplier')"
+            labelProperty="companyTradeName"
+        />
+
+        <sw-text-field
+            v-model:value="addSupplierForm.supplierSku"
+            :label="$tc('ppobase-product.purchase.labelSupplierSku')"
+        />
+
+        <sw-number-field
+            v-model:value="addSupplierForm.supplierPrice"
+            :label="$tc('ppobase-product.purchase.labelSupplierPrice')"
+            numberType="float"
+            :min="0"
+        />
+
+        <sw-single-select
+            v-model:value="addSupplierForm.supplierCurrency"
+            :label="$tc('ppobase-product.purchase.labelCurrency')"
+            :options="currencyOptions"
+        />
+
+        <template #modal-footer>
+            <sw-button variant="primary" :disabled="!addSupplierForm.supplierId" @click="onAddSupplier">
+                {{ $tc('ppobase-product.purchase.buttonAddSupplier') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+
+    <sw-modal v-if="showAddToPoModal" :title="$tc('ppobase-product.purchase.addToPoTitle')" @modal-close="showAddToPoModal = false">
+        <sw-single-select
+            v-model:value="addToPoForm.supplierId"
+            :label="$tc('ppobase-product.purchase.labelSelectSupplier')"
+            labelProperty="supplierName"
+            valueProperty="supplierId"
+            :options="suppliers"
+            @update:value="loadDraftPosForSupplier"
+        />
+
+        <sw-number-field
+            v-model:value="addToPoForm.quantity"
+            :label="$tc('ppobase-product.purchase.labelQuantity')"
+            :min="1"
+            numberType="int"
+        />
+
+        <sw-text-field
+            v-model:value="addToPoForm.unit"
+            :label="$tc('ppobase-product.purchase.labelUnit')"
+        />
+
+        <sw-single-select
+            v-model:value="addToPoForm.purchaseOrderId"
+            :label="$tc('ppobase-product.purchase.labelSelectPo')"
+            labelProperty="poNumber"
+            valueProperty="id"
+            :options="draftPurchaseOrders"
+            :placeholder="$tc('ppobase-product.purchase.labelNewPo')"
+        />
+
+        <template #modal-footer>
+            <sw-button variant="primary" :isLoading="isSaving" :disabled="!addToPoForm.supplierId || !addToPoForm.quantity" @click="onAddToPo">
+                {{ $tc('ppobase-product.purchase.buttonAddToPo') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+</div>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Purchase Order {{ purchaseOrder.poNumber }}</title>
+    <style>
+        {% set primaryColor = config.poPrimaryColor|default('#1E88E5') %}
+        {% set fontFamily = config.poFontFamily|default('DejaVu Sans') %}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: '{{ fontFamily }}', Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #333; }
+        .container { padding: 20px 30px; }
+
+        /* ── Header ── */
+        .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 2px solid {{ primaryColor }}; padding-bottom: 15px; }
+        .header-left { display: table-cell; width: 50%; vertical-align: top; }
+        .header-right { display: table-cell; width: 50%; text-align: right; vertical-align: top; }
+        .po-title { font-size: 24pt; font-weight: bold; color: {{ primaryColor }}; margin-bottom: 5px; }
+        .po-number { font-size: 14pt; color: #666; }
+
+        /* ── Info Sections ── */
+        .info-section { display: table; width: 100%; margin-bottom: 25px; }
+        .info-box { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+        .info-box:last-child { padding-right: 0; padding-left: 20px; }
+        .info-box h3 { font-size: 11pt; color: {{ primaryColor }}; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-row { margin-bottom: 5px; }
+        .info-label { color: #888; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4px; }
+        .info-value { font-weight: 500; font-size: 9.5pt; }
+
+        /* ── Items Table ── */
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .items-table th {
+            background-color: {{ primaryColor }};
+            color: white;
+            padding: 9px 7px;
+            text-align: left;
+            font-size: 8pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .items-table th.right { text-align: right; }
+        .items-table th.center { text-align: center; }
+        .items-table td { padding: 9px 7px; border-bottom: 1px solid #eee; font-size: 8.5pt; vertical-align: top; }
+        .items-table td.right { text-align: right; }
+        .items-table td.center { text-align: center; }
+        .items-table td .meta { font-size: 7.5pt; color: #888; margin-top: 2px; }
+        .items-table tr:nth-child(even) { background-color: #f9f9f9; }
+
+        /* ── Totals ── */
+        .totals-section { width: 320px; margin-left: auto; margin-bottom: 25px; border: 1px solid #eee; border-radius: 4px; overflow: hidden; }
+        .totals-row { display: table; width: 100%; padding: 8px 12px; border-bottom: 1px solid #eee; }
+        .totals-row:last-child { border-bottom: none; }
+        .totals-row.grand-total { background-color: {{ primaryColor }}; }
+        .totals-row.grand-total .totals-label,
+        .totals-row.grand-total .totals-value { color: #fff; font-weight: bold; font-size: 11pt; }
+        .totals-label { display: table-cell; width: 55%; color: #555; font-size: 9pt; }
+        .totals-value { display: table-cell; width: 45%; text-align: right; font-size: 9pt; font-weight: 600; color: #333; }
+
+        /* ── Notes ── */
+        .notes-section { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 25px; border-left: 3px solid {{ primaryColor }}; }
+        .notes-section h3 { font-size: 11pt; color: {{ primaryColor }}; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ── Status Badges ── */
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 9pt; font-weight: 600; text-transform: uppercase; }
+        .status-draft     { background-color: #e3f2fd; color: #1976d2; }
+        .status-sent      { background-color: #fff3e0; color: #f57c00; }
+        .status-received  { background-color: #e8f5e9; color: #388e3c; }
+        .status-cancelled { background-color: #ffebee; color: #d32f2f; }
+        .status-partial   { background-color: #fff8e1; color: #f9a825; }
+
+        /* ── Footer ── */
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 8pt; color: #999; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        {# ── Page Header ── #}
+        <div class="header">
+            <div class="header-left">
+                <div class="po-title">PURCHASE ORDER</div>
+                <div class="po-number">{{ purchaseOrder.poNumber }}</div>
+            </div>
+            <div class="header-right">
+                <span class="status-badge status-{{ purchaseOrder.status }}">{{ purchaseOrder.status|upper }}</span>
+                <div style="margin-top: 10px;">
+                    <div class="info-label">Order Date</div>
+                    <div class="info-value">{{ purchaseOrder.orderDate ? purchaseOrder.orderDate|date('d/m/Y') : '-' }}</div>
+                </div>
+                {% if config.showExpectedDelivery|default(true) and purchaseOrder.expectedDeliveryDate %}
+                <div style="margin-top: 5px;">
+                    <div class="info-label">Expected Delivery</div>
+                    <div class="info-value">{{ purchaseOrder.expectedDeliveryDate|date('d/m/Y') }}</div>
+                </div>
+                {% endif %}
+                {% if config.showInternalReference|default(false) and purchaseOrder.internalReference %}
+                <div style="margin-top: 5px;">
+                    <div class="info-label">Internal Reference</div>
+                    <div class="info-value">{{ purchaseOrder.internalReference }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ── Supplier + Order Details ── #}
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Supplier</h3>
+                {% if supplier %}
+                    <div class="info-row">
+                        <div class="info-value" style="font-size: 12pt;">{{ supplier.companyTradeName }}</div>
+                    </div>
+                    {% if config.showSupplierAddress|default(true) %}
+                        {% if supplier.billingAddressLine1 %}<div class="info-row">{{ supplier.billingAddressLine1 }}</div>{% endif %}
+                        {% if supplier.billingAddressLine2 %}<div class="info-row">{{ supplier.billingAddressLine2 }}</div>{% endif %}
+                        {% if supplier.billingCity %}
+                            <div class="info-row">{{ supplier.billingPostalCode }} {{ supplier.billingCity }}</div>
+                        {% endif %}
+                        {% if supplier.billingCountry %}<div class="info-row">{{ supplier.billingCountry }}</div>{% endif %}
+                    {% endif %}
+                    {% if config.showSupplierVat|default(true) and supplier.vatNumber %}
+                    <div class="info-row" style="margin-top: 8px;">
+                        <div class="info-label">VAT Number</div>
+                        <div class="info-value">{{ supplier.vatNumber }}</div>
+                    </div>
+                    {% endif %}
+                    {% if supplier.companyEmail %}
+                    <div class="info-row">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ supplier.purchaseEmail ?? supplier.companyEmail }}</div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="info-box">
+                <h3>Order Details</h3>
+                <div class="info-row">
+                    <div class="info-label">Currency</div>
+                    <div class="info-value">{{ purchaseOrder.currency ?? 'EUR' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Total Items</div>
+                    <div class="info-value">{{ purchaseOrder.itemCount ?? 0 }}</div>
+                </div>
+                {% if supplier and supplier.vatPercent is defined and supplier.vatPercent > 0 %}
+                <div class="info-row">
+                    <div class="info-label">VAT Rate</div>
+                    <div class="info-value">{{ supplier.vatPercent }}%</div>
+                </div>
+                {% endif %}
+                {% if supplier and supplier.paymentTerms %}
+                <div class="info-row">
+                    <div class="info-label">Payment Terms</div>
+                    <div class="info-value">{{ supplier.paymentTerms }}</div>
+                </div>
+                {% endif %}
+                {% if supplier and supplier.leadTimeDays %}
+                <div class="info-row">
+                    <div class="info-label">Lead Time</div>
+                    <div class="info-value">{{ supplier.leadTimeDays }} days</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ── Items Table ── #}
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 25px;">#</th>
+                    <th style="width: 70px;">SKU</th>
+                    {% if config.showEan|default(false) %}
+                        <th style="width: 60px;">EAN</th>
+                    {% endif %}
+                    {% if config.showMpn|default(false) %}
+                        <th style="width: 60px;">MPN</th>
+                    {% endif %}
+                    <th>Product</th>
+                    <th class="center" style="width: 45px;">Qty</th>
+                    <th class="right" style="width: 60px;">Unit Price</th>
+                    {% if config.showTaxColumn|default(true) %}
+                        <th class="center" style="width: 40px;">Tax %</th>
+                        <th class="right" style="width: 50px;">Tax</th>
+                    {% endif %}
+                    <th class="right" style="width: 65px;">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.lineNumber }}</td>
+                    <td>{{ item.productNumber ?? '-' }}</td>
+                    {% if config.showEan|default(false) %}
+                        <td>{{ item.ean ?? '-' }}</td>
+                    {% endif %}
+                    {% if config.showMpn|default(false) %}
+                        <td>{{ item.mpn ?? '-' }}</td>
+                    {% endif %}
+                    <td>
+                        {{ item.productName }}
+                        {% if item.notes %}
+                            <div class="meta">{{ item.notes }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="center">{{ item.quantityOrdered }} {{ item.unit }}</td>
+                    <td class="right">{{ item.unitPrice|number_format(2, '.', ',') }}</td>
+                    {% if config.showTaxColumn|default(true) %}
+                    <td class="center">
+                        {% if item.taxRate is defined and item.taxRate > 0 %}
+                            {{ item.taxRate }}%
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="right">
+                        {% if item.taxAmount is defined and item.taxAmount > 0 %}
+                            {{ item.taxAmount|number_format(2, '.', ',') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td class="right"><strong>{{ item.lineTotal|number_format(2, '.', ',') }}</strong></td>
+                </tr>
+                {% else %}
+                <tr>
+                    {# Calculate colspan dynamically based on enabled columns #}
+                    {% set colspan = 6 %}
+                    {% if config.showEan|default(false) %}{% set colspan = colspan + 1 %}{% endif %}
+                    {% if config.showMpn|default(false) %}{% set colspan = colspan + 1 %}{% endif %}
+                    {% if config.showTaxColumn|default(true) %}{% set colspan = colspan + 2 %}{% endif %}
+                    <td colspan="{{ colspan }}" style="text-align: center; padding: 20px; color: #999;">No items</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# ── Totals ── #}
+        <div class="totals-section">
+            <div class="totals-row">
+                <div class="totals-label">Subtotal</div>
+                <div class="totals-value">
+                    {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.subtotal|number_format(2, '.', ',') }}
+                </div>
+            </div>
+            {% if config.showTaxColumn|default(true) and purchaseOrder.taxAmount is defined and purchaseOrder.taxAmount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">
+                    Tax / VAT
+                    {% if supplier and supplier.vatPercent is defined and supplier.vatPercent > 0 %}
+                        ({{ supplier.vatPercent }}%)
+                    {% endif %}
+                </div>
+                <div class="totals-value">
+                    {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.taxAmount|number_format(2, '.', ',') }}
+                </div>
+            </div>
+            {% endif %}
+            <div class="totals-row grand-total">
+                <div class="totals-label">Grand Total</div>
+                <div class="totals-value">
+                    {{ purchaseOrder.currency ?? 'EUR' }} {{ purchaseOrder.total|number_format(2, '.', ',') }}
+                </div>
+            </div>
+        </div>
+
+        {# ── Notes ── #}
+        {% if config.showNotes|default(true) and purchaseOrder.notes %}
+        <div class="notes-section">
+            <h3>Notes</h3>
+            <div>{{ purchaseOrder.notes|raw }}</div>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            Generated on {{ "now"|date('d/m/Y H:i') }} &nbsp;|&nbsp; {{ purchaseOrder.poNumber }}
+        </div>
+
+    </div>
+</body>
+</html>

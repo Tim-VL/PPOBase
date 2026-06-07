@@ -1,0 +1,83 @@
+<div class="ppobase-product-packaging">
+    <sw-card :title="$tc('ppobase-product.packaging.cardCarton')" :isLoading="isLoading">
+        <sw-container columns="1fr 1fr" gap="0 16px">
+            <sw-number-field
+                v-model:value="extensionData.itemsPerCarton"
+                :label="$tc('ppobase-product.packaging.labelItemsPerCarton')"
+                numberType="int"
+                :min="0"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonsPerLayer"
+                :label="$tc('ppobase-product.packaging.labelCartonsPerLayer')"
+                numberType="int"
+                :min="0"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonLength"
+                :label="$tc('ppobase-product.packaging.labelCartonLength')"
+                numberType="float"
+                :min="0"
+                :step="0.1"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonHeight"
+                :label="$tc('ppobase-product.packaging.labelCartonHeight')"
+                numberType="float"
+                :min="0"
+                :step="0.1"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonWidth"
+                :label="$tc('ppobase-product.packaging.labelCartonWidth')"
+                numberType="float"
+                :min="0"
+                :step="0.1"
+            />
+
+            <sw-text-field
+                :value="cartonVolume"
+                :label="$tc('ppobase-product.packaging.labelCartonVolume')"
+                :disabled="true"
+                :helpText="'Calculated: L x H x W / 1,000,000'"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonWeightNet"
+                :label="$tc('ppobase-product.packaging.labelCartonWeightNet')"
+                numberType="float"
+                :min="0"
+                :step="0.01"
+            />
+
+            <sw-number-field
+                v-model:value="extensionData.cartonWeightGross"
+                :label="$tc('ppobase-product.packaging.labelCartonWeightGross')"
+                numberType="float"
+                :min="0"
+                :step="0.01"
+            />
+        </sw-container>
+    </sw-card>
+
+    <sw-card :title="$tc('ppobase-product.packaging.cardRuleNotes')">
+        <sw-textarea-field
+            v-model="extensionData.ruleNotes"
+            :label="$tc('ppobase-product.packaging.labelRuleNotes')"
+            :placeholder="$tc('ppobase-product.packaging.placeholderRuleNotes')"
+            rows="6"
+        />
+
+        <sw-button-process
+            variant="primary"
+            :isLoading="isSaving"
+            @click="onSave"
+        >
+            {{ $tc('ppobase-product.packaging.buttonSave') }}
+        </sw-button-process>
+    </sw-card>
+</div>

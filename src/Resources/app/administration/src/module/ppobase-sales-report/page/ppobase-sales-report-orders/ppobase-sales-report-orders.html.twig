@@ -1,0 +1,90 @@
+{% block ppobase_sales_report_orders %}
+<sw-page class="ppobase-sales-report">
+    <template #content>
+        <sw-card-view>
+            <div class="ppobase-sales-report__date-filter">
+                <sw-datepicker v-model:value="dateFrom" :label="$tc('ppobase-sales-report.common.labelDateFrom')" dateType="date" size="small"></sw-datepicker>
+                <sw-datepicker v-model:value="dateTo" :label="$tc('ppobase-sales-report.common.labelDateTo')" dateType="date" size="small"></sw-datepicker>
+                <sw-button variant="primary" size="small" @click="onApplyFilter">{{ $tc('ppobase-sales-report.common.buttonApply') }}</sw-button>
+                <sw-button variant="ghost" size="small" @click="onResetFilter">{{ $tc('ppobase-sales-report.common.buttonReset') }}</sw-button>
+            </div>
+
+            <div class="ppobase-sales-report__chart-row">
+                <div class="ppobase-sales-report__chart-container">
+                    <h4>{{ $tc('ppobase-sales-report.orders.chartLineTitle') }}</h4>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="ppobase-sales-report-orders-line"></canvas>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__chart-container">
+                    <h4>{{ $tc('ppobase-sales-report.orders.columnStatus') }}</h4>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="ppobase-sales-report-orders-status-doughnut"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ppobase-sales-report__summary-cards" v-if="summary">
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--orders">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-shopping-bag" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ summary.totalOrders }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelTotalOrders') }}</div>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--revenue">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-chart-line" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ formatMoney(summary.totalRevenue) }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelTotalRevenue') }}</div>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--avg">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-list" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ formatMoney(summary.avgOrderValue) }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelAvgOrderValue') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <sw-card :title="$tc('ppobase-sales-report.orders.title')" :isLoading="isLoading">
+                <sw-data-grid
+                    v-if="pagedGridOrders && pagedGridOrders.length"
+                    :dataSource="pagedGridOrders"
+                    :columns="columns"
+                    :showSelection="false"
+                    :allowInlineEdit="false"
+                    @column-sort="onColumnSort">
+                    <template #column-order_number="{ item }">
+                        <a class="ppobase-sales-report__link" @click.prevent="onOrderClick(item)">{{ item.order_number }}</a>
+                    </template>
+                    <template #column-order_date_time="{ item }">{{ formatDate(item.order_date_time) }}</template>
+                    <template #column-order_status="{ item }">
+                        <sw-label :variant="getStatusVariant(item.order_status)" appearance="pill" size="small">
+                            {{ item.order_status || '-' }}
+                        </sw-label>
+                    </template>
+                    <template #column-amount_total="{ item }">{{ formatMoney(item.amount_total, item.currency) }}</template>
+                </sw-data-grid>
+
+                <sw-pagination
+                    v-if="total > 0"
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :steps="[10, 25, 50, 100]"
+                    @page-change="onPageChange">
+                </sw-pagination>
+                <sw-empty-state v-else :title="$tc('ppobase-sales-report.orders.emptyState')"></sw-empty-state>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

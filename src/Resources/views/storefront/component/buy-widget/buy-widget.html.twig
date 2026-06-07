@@ -1,0 +1,42 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
+
+{% block buy_widget_ordernumber_container %}
+    {{ parent() }}
+
+    {% if page.extensions.ppobaseGroupedProducts is defined and page.extensions.ppobaseGroupedProducts is not empty %}
+        <div class="ppobase-grouped-products-box mt-3 pt-3 border-top">
+            <p class="fw-bold mb-2">{{ "ppobase.groupedProducts.storefront.title"|trans }}</p>
+            <table class="table table-sm mb-2">
+                <thead>
+                    <tr class="text-muted small">
+                        <th style="width:40px"></th>
+                        <th>{{ "ppobase.groupedProducts.storefront.colName"|trans }}</th>
+                        <th class="text-center">{{ "ppobase.groupedProducts.storefront.colQty"|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in page.extensions.ppobaseGroupedProducts %}
+                        <tr class="align-middle">
+                            <td>
+                                {% if item.coverUrl %}
+                                    <img src="{{ item.coverUrl }}"
+                                         alt="{{ item.productName }}"
+                                         style="width:32px;height:32px;object-fit:contain;">
+                                {% endif %}
+                            </td>
+                            <td class="small">
+                                <a href="{{ seoUrl('frontend.detail.page', { productId: item.childProductId }) }}"
+                                   class="fw-semibold text-dark text-decoration-none">{{ item.productName }}</a>
+                                <span class="text-muted d-block" style="font-size:0.75rem">{{ item.productNumber }}</span>
+                            </td>
+                            <td class="text-center small">{{ item.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="text-muted" style="font-size:0.75rem">
+                {{ "ppobase.groupedProducts.storefront.cartNote"|trans }}
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

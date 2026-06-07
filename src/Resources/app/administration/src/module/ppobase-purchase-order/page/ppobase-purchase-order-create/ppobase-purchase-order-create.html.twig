@@ -1,0 +1,184 @@
+{% block ppobase_purchase_order_detail %}
+<sw-page class="ppobase-purchase-order-create">
+
+    <template #smart-bar-header>
+        <h2>{{ pageTitle }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onCancel"
+            class="mt-button--default">
+            {{ $tc('ppobase-purchase-order.create.buttonCancel') }}
+        </sw-button>
+
+        <sw-button variant="primary" class="mt-button--default" :isLoading="isSaving" :disabled="!purchaseOrder" @click="onSave">
+            {{ $tc('ppobase-purchase-order.create.buttonCreate') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+
+            <sw-card :title="$tc('ppobase-purchase-order.create.cardSelectSupplier')" :isLoading="isLoading">
+                <sw-container columns="1fr 1fr" gap="20px">
+                    <sw-entity-single-select
+                        v-model:value="selectedSupplierId"
+                        entity="ppobase_supplier"
+                        :label="$tc('ppobase-purchase-order.create.labelSupplier')"
+                        :placeholder="$tc('ppobase-purchase-order.create.placeholderSupplier')"
+                        labelProperty="companyTradeName"
+                        @update:value="onSupplierSelected">
+                    </sw-entity-single-select>
+
+                    <sw-entity-single-select
+                        v-model:value="selectedSalesChannelId"
+                        entity="sales_channel"
+                        :label="$tc('ppobase-purchase-order.create.labelSalesChannel')"
+                        :placeholder="$tc('ppobase-purchase-order.create.placeholderSalesChannel')"
+                        labelProperty="name"
+                        :required="true"
+                        @update:value="onSalesChannelSelected">
+                    </sw-entity-single-select>
+                </sw-container>
+            </sw-card>
+
+            <template v-if="purchaseOrder">
+                <sw-card :title="$tc('ppobase-purchase-order.detail.cardOrderInfo')">
+                    <sw-container columns="1fr 1fr 1fr" gap="20px">
+                        <sw-text-field v-model:value="purchaseOrder.poNumber" :label="$tc('ppobase-purchase-order.detail.labelPoNumber')" :disabled="true"></sw-text-field>
+                        <div>
+                            <label class="sw-field__label">{{ $tc('ppobase-purchase-order.detail.labelSupplier') }}</label>
+                            <p><strong>{{ purchaseOrder.supplier ? purchaseOrder.supplier.companyTradeName : '-' }}</strong></p>
+                            <template v-if="purchaseOrder.supplier && purchaseOrder.supplier.vatPercent > 0">
+                                <small style="color: #999;">{{ $tc('ppobase-purchase-order.detail.labelVatPercent') }}: {{ purchaseOrder.supplier.vatPercent }}%</small>
+                            </template>
+                        </div>
+                        <sw-single-select v-model:value="purchaseOrder.status" :options="statusOptions" :label="$tc('ppobase-purchase-order.detail.labelStatus')" :disabled="true"></sw-single-select>
+                        <sw-datepicker v-model:value="purchaseOrder.orderDate" :label="$tc('ppobase-purchase-order.detail.labelOrderDate')"></sw-datepicker>
+                        <sw-datepicker v-model:value="purchaseOrder.expectedDeliveryDate" dateType="date" :label="$tc('ppobase-purchase-order.detail.labelExpectedDelivery')"></sw-datepicker>
+                        <sw-entity-single-select
+                            v-model:value="purchaseOrder.salesChannelId"
+                            entity="sales_channel"
+                            :label="$tc('ppobase-purchase-order.detail.labelSalesChannel')"
+                            labelProperty="name"
+                            @update:value="onSalesChannelSelected">
+                        </sw-entity-single-select>
+                    </sw-container>
+
+                    <sw-container columns="1fr" gap="20px" style="margin-top: 16px;">
+                        <sw-text-field v-model:value="purchaseOrder.internalReference" :label="$tc('ppobase-purchase-order.detail.labelInternalRef')"></sw-text-field>
+                    </sw-container>
+
+                </sw-card>
+
+                <sw-card :title="$tc('ppobase-purchase-order.detail.cardItems')">
+                    <template #toolbar>
+                        <sw-button size="small" @click="openAddItemModal">{{ $tc('ppobase-purchase-order.detail.buttonAddFromSupplier') }}</sw-button>
+                        <sw-button size="small" variant="ghost" @click="addManualItem">{{ $tc('ppobase-purchase-order.detail.buttonAddManual') }}</sw-button>
+                    </template>
+
+                    <sw-data-grid
+                        v-if="purchaseOrder.items && purchaseOrder.items.length > 0"
+                        :dataSource="purchaseOrder.items"
+                        :columns="itemColumns"
+                        :showSelection="false"
+                        :showActions="true">
+                        <template #column-productNumber="{ item }">
+                            <sw-text-field
+                                v-if="!item.productId"
+                                v-model:value="item.productNumber"
+                                size="small"
+                                @change="onFormChange">
+                            </sw-text-field>
+                            <span v-else>{{ item.productNumber }}</span>
+                        </template>
+                        <template #column-productName="{ item }">
+                            <sw-text-field v-model:value="item.productName" size="small"></sw-text-field>
+                        </template>
+                        <template #column-ean="{ item }">
+                            <sw-text-field v-model:value="item.ean" size="small" :placeholder="$tc('ppobase-purchase-order.detail.columnEan')"></sw-text-field>
+                        </template>
+                        <template #column-mpn="{ item }">
+                            <sw-text-field v-model:value="item.mpn" size="small" :placeholder="$tc('ppobase-purchase-order.detail.columnMpn')"></sw-text-field>
+                        </template>
+                        <template #column-quantityOrdered="{ item }">
+                            <sw-number-field v-model:value="item.quantityOrdered" :min="0" @update:value="onItemQuantityChange(item)"></sw-number-field>
+                        </template>
+                        <template #column-unitPrice="{ item }">
+                            <sw-number-field v-model:value="item.unitPrice" :min="0" :step="0.01" @update:value="onItemPriceChange(item)"></sw-number-field>
+                        </template>
+                        <template #column-taxPercent="{ item }">
+                            <span>{{ supplierVatPercent }}%</span>
+                        </template>
+                        <template #column-lineTotal="{ item }">
+                            <strong>{{ formatCurrency(item.lineTotal) }}</strong>
+                        </template>
+                        <template #actions="{ item }">
+                            <sw-context-menu-item variant="danger" @click="removeItem(item)">{{ $tc('ppobase-purchase-order.detail.actionRemove') }}</sw-context-menu-item>
+                        </template>
+                    </sw-data-grid>
+
+                    <sw-empty-state v-else :title="$tc('ppobase-purchase-order.detail.noItemsTitle')">
+                        <template #actions>
+                            <sw-button variant="primary" @click="openAddItemModal">{{ $tc('ppobase-purchase-order.detail.buttonAddFromSupplier') }}</sw-button>
+                        </template>
+                    </sw-empty-state>
+                </sw-card>
+
+                <sw-card :title="$tc('ppobase-purchase-order.detail.cardTotals')">
+                    <div class="ppobase-purchase-order-detail__totals">
+                        <div class="ppobase-purchase-order-detail__totals-row">
+                            <span>{{ $tc('ppobase-purchase-order.detail.labelSubtotal') }}</span>
+                            <strong>{{ formatCurrency(purchaseOrder.subtotal) }}</strong>
+                        </div>
+                        <div v-if="supplierVatPercent > 0" class="ppobase-purchase-order-detail__totals-row">
+                            <span>{{ $tc('ppobase-purchase-order.detail.labelTaxAmount') }} ({{ supplierVatPercent }}%)</span>
+                            <strong>{{ formatCurrency(purchaseOrder.taxAmount) }}</strong>
+                        </div>
+                        <div class="ppobase-purchase-order-detail__totals-row ppobase-purchase-order-detail__totals-row--total">
+                            <span>{{ $tc('ppobase-purchase-order.detail.labelTotal') }}</span>
+                            <strong>{{ formatCurrency(purchaseOrder.total) }}</strong>
+                        </div>
+                    </div>
+                </sw-card>
+
+                <sw-card :title="$tc('ppobase-purchase-order.detail.cardNotes')">
+                    <sw-text-editor
+                        :value="purchaseOrder.notes"
+                        @update:value="onTextareaChange('notes', $event)"
+                        :sanitize-input="false">
+                    </sw-text-editor>
+                </sw-card>
+            </template>
+
+        </sw-card-view>
+
+        {# Add Items Modal #}
+        <sw-modal v-if="showAddItemModal" :title="$tc('ppobase-purchase-order.detail.modalAddItems')" variant="large" @modal-close="closeAddItemModal">
+            <sw-text-field
+                v-model:value="productSearchQuery"
+                :placeholder="$tc('ppobase-purchase-order.detail.searchProductsPlaceholder')"
+                style="margin-bottom: 16px;">
+            </sw-text-field>
+            <sw-data-grid v-if="filteredProducts && filteredProducts.length > 0" :dataSource="filteredProducts" :columns="addItemColumns" :showSelection="true" :isLoading="isLoadingProducts" @selection-change="onProductSelectionChange"></sw-data-grid>
+            <sw-loader v-else-if="isLoadingProducts"></sw-loader>
+            <sw-empty-state v-else :title="$tc('ppobase-purchase-order.detail.noSupplierProducts')"></sw-empty-state>
+            <template #modal-footer>
+                <sw-button size="small" @click="closeAddItemModal">{{ $tc('ppobase-purchase-order.detail.buttonCancel') }}</sw-button>
+                <sw-button variant="primary" size="small" :disabled="selectedProducts.length === 0" @click="addSelectedProducts">{{ $tc('ppobase-purchase-order.detail.buttonAddItems') }} ({{ selectedProducts.length }})</sw-button>
+            </template>
+        </sw-modal>
+
+        {# Unsaved Changes Modal #}
+        <sw-modal v-if="showUnsavedChangesModal" :title="$tc('ppobase-purchase-order.create.unsavedChangesTitle')" @modal-close="onStay">
+            <p>{{ $tc('ppobase-purchase-order.create.unsavedChangesMessage') }}</p>
+            <template #modal-footer>
+                <sw-button size="small" @click="onStay">{{ $tc('ppobase-purchase-order.create.buttonStay') }}</sw-button>
+                <sw-button size="small" variant="danger" @click="onDiscardAndLeave">{{ $tc('ppobase-purchase-order.create.buttonDiscardAndLeave') }}</sw-button>
+                <sw-button size="small" variant="primary" @click="onSaveAndLeave">{{ $tc('ppobase-purchase-order.create.buttonSaveAndLeave') }}</sw-button>
+            </template>
+        </sw-modal>
+    </template>
+
+</sw-page>
+{% endblock %}

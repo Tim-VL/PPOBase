@@ -1,0 +1,79 @@
+.ppobase-po-history-detail {
+    .sw-card-view,
+    .sw-card,
+    .mt-card,
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+
+    &__overview {
+        padding: 4px 0;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    &__label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #52667a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    &__value {
+        font-size: 14px;
+        color: #374b5c;
+        font-weight: 400;
+
+        &--po {
+            font-size: 18px;
+            font-weight: 600;
+            color: #189eff;
+        }
+    }
+
+    &__description {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid #e8eaed;
+    }
+
+    &__description-text {
+        font-size: 14px;
+        color: #374b5c;
+        line-height: 1.5;
+        margin: 6px 0 0;
+    }
+
+    &__diff {
+        &--removed {
+            color: #de294c;
+            background-color: #fce8ec;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        &--added {
+            color: #37d046;
+            background-color: #e8fce9;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    }
+
+    &__raw {
+        background: #f5f6f7;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: monospace;
+        overflow: auto;
+        max-height: 300px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+}

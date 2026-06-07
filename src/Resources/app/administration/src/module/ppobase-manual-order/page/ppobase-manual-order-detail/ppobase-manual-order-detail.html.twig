@@ -1,0 +1,168 @@
+<sw-page class="ppobase-manual-order-detail">
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-manual-order.detail.title') }} <template v-if="order">{{ order.orderNumber }}</template></h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onBack">
+            {{ $tc('ppobase-manual-order.detail.buttonBack') }}
+        </sw-button>
+        <sw-context-button>
+            <sw-context-menu-item @click="onPrintInvoice" :disabled="isPrintingInvoice">
+                {{ $tc('ppobase-manual-order.detail.buttonPrintInvoice') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="onPrintDeliveryNote" :disabled="isPrintingDelivery">
+                {{ $tc('ppobase-manual-order.detail.buttonPrintDeliveryNote') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="onExportExcel">
+                {{ $tc('ppobase-manual-order.detail.buttonExportExcel') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="onGoToOrder" v-if="order">
+                {{ $tc('ppobase-manual-order.detail.buttonViewOrder') }}
+            </sw-context-menu-item>
+            <sw-context-menu-item @click="onGoToCustomer" v-if="order && order.customerId">
+                {{ $tc('ppobase-manual-order.detail.buttonViewCustomer') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+        <sw-button variant="primary" :isLoading="isSaving" @click="onSave">
+            {{ $tc('ppobase-manual-order.detail.buttonSave') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view v-if="order">
+
+            <sw-card :title="$tc('ppobase-manual-order.detail.cardOrderInfo')">
+                <div class="ppobase-manual-order-detail__info-grid">
+                    <div class="ppobase-manual-order-detail__info-row">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelOrderNumber') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">
+                            <a class="ppobase-manual-order-detail__link" @click.prevent="onGoToOrder" href="#">{{ order.orderNumber }}</a>
+                        </span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__info-row">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelOrderDate') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">{{ formatDate(order.orderDate) }}</span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__info-row">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelCustomer') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">
+                            <a v-if="order.customerId" class="ppobase-manual-order-detail__link" @click.prevent="onGoToCustomer" href="#">{{ order.customerName }}</a>
+                            <template v-else>{{ order.customerName }}</template>
+                            ({{ order.customerEmail }})
+                        </span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__info-row">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelPaymentMethod') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">{{ order.paymentMethod || '—' }}</span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__info-row">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelShippingMethod') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">{{ order.shippingMethod || '—' }}</span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__info-row" v-if="order.shippingDate">
+                        <span class="ppobase-manual-order-detail__info-label">{{ $tc('ppobase-manual-order.detail.labelShippingDate') }}</span>
+                        <span class="ppobase-manual-order-detail__info-value">{{ formatDate(order.shippingDate) }}</span>
+                    </div>
+                </div>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.detail.cardAddresses')">
+                <div class="ppobase-manual-order-detail__address-grid">
+                    <div v-if="order.billingAddress">
+                        <h4>{{ $tc('ppobase-manual-order.detail.labelBillingAddress') }}</h4>
+                        <div class="ppobase-manual-order-detail__address-block">
+                            <div v-if="order.billingAddress.company">{{ order.billingAddress.company }}</div>
+                            <div>{{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}</div>
+                            <div>{{ order.billingAddress.street }}</div>
+                            <div v-if="order.billingAddress.additionalAddressLine1">{{ order.billingAddress.additionalAddressLine1 }}</div>
+                            <div>{{ order.billingAddress.zipcode }} {{ order.billingAddress.city }}</div>
+                            <div>{{ order.billingAddress.country }}</div>
+                        </div>
+                    </div>
+                    <div v-if="order.shippingAddress">
+                        <h4>{{ $tc('ppobase-manual-order.detail.labelShippingAddress') }}</h4>
+                        <div class="ppobase-manual-order-detail__address-block">
+                            <div v-if="order.shippingAddress.company">{{ order.shippingAddress.company }}</div>
+                            <div>{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}</div>
+                            <div>{{ order.shippingAddress.street }}</div>
+                            <div v-if="order.shippingAddress.additionalAddressLine1">{{ order.shippingAddress.additionalAddressLine1 }}</div>
+                            <div>{{ order.shippingAddress.zipcode }} {{ order.shippingAddress.city }}</div>
+                            <div>{{ order.shippingAddress.country }}</div>
+                        </div>
+                    </div>
+                </div>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.detail.cardItems')">
+                <table class="ppobase-manual-order-detail__items-table">
+                    <thead>
+                        <tr>
+                            <th>{{ $tc('ppobase-manual-order.detail.columnProduct') }}</th>
+                            <th>{{ $tc('ppobase-manual-order.detail.columnSku') }}</th>
+                            <th style="width: 80px; text-align: center;">{{ $tc('ppobase-manual-order.detail.columnQty') }}</th>
+                            <th style="width: 120px; text-align: right;">{{ $tc('ppobase-manual-order.detail.columnUnitPrice') }}</th>
+                            <th style="width: 80px; text-align: right;">{{ $tc('ppobase-manual-order.detail.columnTaxRate') }}</th>
+                            <th style="width: 120px; text-align: right;">{{ $tc('ppobase-manual-order.detail.columnLineTotal') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in order.items" :key="index">
+                            <td>{{ item.productName }}</td>
+                            <td>{{ item.productNumber }}</td>
+                            <td style="text-align: center;">{{ item.quantity }}</td>
+                            <td style="text-align: right;">{{ order.currency }} {{ formatNum(item.unitPrice) }}</td>
+                            <td style="text-align: right;">{{ item.taxRate }}%</td>
+                            <td style="text-align: right; font-weight: 600;">{{ order.currency }} {{ formatNum(item.totalPrice) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ppobase-manual-order-detail__totals">
+                    <div class="ppobase-manual-order-detail__totals-row">
+                        <span>{{ $tc('ppobase-manual-order.detail.labelSubtotal') }}</span>
+                        <span>{{ order.currency }} {{ formatNum(order.subtotal) }}</span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__totals-row">
+                        <span>{{ $tc('ppobase-manual-order.detail.labelTaxAmount') }}</span>
+                        <span>{{ order.currency }} {{ formatNum(order.taxAmount) }}</span>
+                    </div>
+                    <div class="ppobase-manual-order-detail__totals-row ppobase-manual-order-detail__totals-row--grand">
+                        <span>{{ $tc('ppobase-manual-order.detail.labelGrandTotal') }}</span>
+                        <span>{{ order.currency }} {{ formatNum(order.grandTotal) }}</span>
+                    </div>
+                </div>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.detail.cardEdit')">
+                <sw-text-field
+                    :label="$tc('ppobase-manual-order.detail.labelOrderReference')"
+                    v-model:value="editOrderReference"
+                >
+                </sw-text-field>
+
+                <sw-datepicker
+                    :label="$tc('ppobase-manual-order.detail.labelShippingDate')"
+                    v-model:value="editShippingDate"
+                >
+                </sw-datepicker>
+
+                <div style="margin-top: 16px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #52667a;">{{ $tc('ppobase-manual-order.detail.labelNotes') }}</label>
+                    <sw-text-editor
+                        v-model:value="editNotes"
+                        :sanitize-input="false"
+                    >
+                    </sw-text-editor>
+                </div>
+            </sw-card>
+
+        </sw-card-view>
+
+        <sw-loader v-else-if="isLoading"></sw-loader>
+
+        <sw-empty-state v-else :title="$tc('ppobase-manual-order.detail.notFound')">
+        </sw-empty-state>
+
+    </template>
+</sw-page>

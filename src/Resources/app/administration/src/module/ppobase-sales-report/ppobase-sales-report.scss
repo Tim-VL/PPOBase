@@ -1,0 +1,255 @@
+.ppobase-sales-report {
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+
+    .mt-card {
+        max-width: none !important;
+    }
+
+    &__summary-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    &__summary-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: box-shadow 0.2s;
+
+        &:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        &--orders {
+            border-left: 4px solid #1E88E5;
+            .ppobase-sales-report__summary-card-icon { color: #1E88E5; background: #eff6ff; }
+        }
+
+        &--revenue {
+            border-left: 4px solid #43A047;
+            .ppobase-sales-report__summary-card-icon { color: #43A047; background: #ecfdf5; }
+        }
+
+        &--customers {
+            border-left: 4px solid #FF9800;
+            .ppobase-sales-report__summary-card-icon { color: #FF9800; background: #fff8e1; }
+        }
+
+        &--avg {
+            border-left: 4px solid #8E24AA;
+            .ppobase-sales-report__summary-card-icon { color: #8E24AA; background: #f3e5f5; }
+        }
+    }
+
+    &__summary-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    &__summary-card-content {
+        flex: 1;
+    }
+
+    &__summary-card-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+    }
+
+    &__summary-card-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+    }
+
+    &__chart-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    &__chart-container,
+    &__chart-full {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 24px;
+
+        h4 {
+            margin: 0 0 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &::before {
+                content: '';
+                display: inline-block;
+                width: 4px;
+                height: 16px;
+                background: #1E88E5;
+                border-radius: 2px;
+            }
+        }
+    }
+
+    &__date-filter {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+        margin-bottom: 24px;
+        padding: 16px 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    &__dashboard-tiles {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    &__dashboard-tile {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 24px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #1E88E5;
+            border-radius: 10px 0 0 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        &:hover {
+            border-color: #1E88E5;
+            box-shadow: 0 6px 20px rgba(30, 136, 229, 0.12);
+            transform: translateY(-2px);
+
+            &::before {
+                opacity: 1;
+            }
+        }
+
+        &:nth-child(2)::before { background: #FF9800; }
+        &:nth-child(2):hover { border-color: #FF9800; box-shadow: 0 6px 20px rgba(255, 152, 0, 0.12); }
+        &:nth-child(3)::before { background: #43A047; }
+        &:nth-child(3):hover { border-color: #43A047; box-shadow: 0 6px 20px rgba(67, 160, 71, 0.12); }
+        &:nth-child(4)::before { background: #8E24AA; }
+        &:nth-child(4):hover { border-color: #8E24AA; box-shadow: 0 6px 20px rgba(142, 36, 170, 0.12); }
+        &:nth-child(5)::before { background: #E53935; }
+        &:nth-child(5):hover { border-color: #E53935; box-shadow: 0 6px 20px rgba(229, 57, 53, 0.12); }
+
+        h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            margin: 0;
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+    }
+
+    &__search-bar {
+        margin-bottom: 24px;
+
+        .sw-simple-search-field {
+            max-width: none !important;
+            width: 100% !important;
+        }
+
+        .sw-field {
+            max-width: none !important;
+        }
+
+        input {
+            width: 100% !important;
+        }
+
+        .sw-card {
+            max-width: none !important;
+            margin-top: 12px;
+        }
+    }
+
+    &__customer-info,
+    &__product-info {
+        display: flex;
+        gap: 24px;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        color: #1e40af;
+        flex-wrap: wrap;
+        align-items: center;
+
+        strong {
+            font-size: 16px;
+        }
+    }
+
+    &__link {
+        color: #1E88E5;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+            color: #1565C0;
+            text-decoration: underline;
+        }
+    }
+}

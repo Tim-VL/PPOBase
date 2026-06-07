@@ -1,0 +1,23 @@
+{% sw_extends '@Storefront/storefront/component/line-item/element/quantity.html.twig' %}
+
+{% block component_line_item_quantity_inner %}
+    {% if lineItem.payload.ppobase_grouped_child is defined and lineItem.payload.ppobase_grouped_child %}
+        <div class="row line-item-quantity-row">
+            {% block component_line_item_quantity_label_grouped_child %}
+                <div class="line-item-quantity-label">
+                    {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+
+            {% block component_line_item_quantity_display_grouped_child %}
+                <div class="line-item-quantity-select-wrapper">
+                    <div class="d-flex justify-content-sm-center justify-content-end">
+                        {{ lineItem.quantity }}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,60 @@
+.ppobase-goods-receipt-list {
+    &__status-filter {
+        width: 240px;
+        margin-right: 8px;
+
+        .sw-single-select,
+        .sw-block-field,
+        .mt-select,
+        .mt-field {
+            width: 100%;
+        }
+
+        .sw-single-select__selection-text,
+        .mt-select__selection-text {
+            max-width: calc(100% - 32px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card, .mt-card {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+
+    .sw-data-grid__cell--receiptNumber a {
+        color: #1e88e5;
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .sw-data-grid__cell--purchaseOrder-poNumber a {
+        color: #1e88e5;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    .mt-card__content {
+        min-height: 250px;
+    }
+
+    .sw-single-select__selection-text {
+        display: flex;
+        justify-content: center;
+    }
+}

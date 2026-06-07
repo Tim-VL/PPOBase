@@ -1,0 +1,25 @@
+{
+  "base": "/bundles/ppobase/administration/",
+  "entryPoints": {
+    "p-p-o-base": {
+      "css": [
+        "/bundles/ppobase/administration/assets/p-p-o-base-D8E37IzU.css"
+      ],
+      "dynamic": [],
+      "js": [
+        "/bundles/ppobase/administration/assets/p-p-o-base-BYnArnQs.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

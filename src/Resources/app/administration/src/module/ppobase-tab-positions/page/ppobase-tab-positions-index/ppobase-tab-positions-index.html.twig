@@ -1,0 +1,76 @@
+<sw-page class="ppobase-tab-positions-index">
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-tab-positions.general.mainMenuItemGeneral') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            variant="ghost"
+            @click="onResetAll"
+        >
+            {{ $tc('ppobase-tab-positions.list.buttonResetAll') }}
+        </sw-button>
+
+        <sw-button-process
+            variant="primary"
+            :isLoading="isSaving"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                :title="$tc('ppobase-tab-positions.list.cardTitle')"
+                :isLoading="isLoading"
+            >
+                <sw-data-grid
+                    :dataSource="tabs"
+                    :columns="columns"
+                    :showSelection="false"
+                    :showActions="true"
+                    :isLoading="isLoading"
+                >
+                    <template #column-label="{ item }">
+                        {{ item.label }}
+                    </template>
+
+                    <template #column-technicalName="{ item }">
+                        <code>{{ item.technicalName }}</code>
+                    </template>
+
+                    <template #column-defaultPosition="{ item }">
+                        {{ item.defaultPosition }}
+                    </template>
+
+                    <template #column-customPosition="{ item }">
+                        <sw-number-field
+                            :value="item.customPosition"
+                            numberType="int"
+                            size="small"
+                            :placeholder="$tc('ppobase-tab-positions.list.placeholderDefault')"
+                            @update:value="onCustomPositionChange(item, $event)"
+                        />
+                    </template>
+
+                    <template #column-effectivePosition="{ item }">
+                        {{ item.effectivePosition }}
+                    </template>
+
+                    <template #actions="{ item }">
+                        <sw-context-menu-item @click="onResetItem(item)">
+                            {{ $tc('ppobase-tab-positions.list.actionReset') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-data-grid>
+
+                <sw-empty-state
+                    v-if="!isLoading && !tabs.length"
+                    :title="$tc('ppobase-tab-positions.list.emptyTitle')"
+                />
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>

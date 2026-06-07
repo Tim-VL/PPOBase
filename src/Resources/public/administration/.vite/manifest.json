@@ -1,0 +1,11 @@
+{
+  "main.js": {
+    "file": "assets/p-p-o-base-BYnArnQs.js",
+    "name": "p-p-o-base",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "assets/p-p-o-base-D8E37IzU.css"
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+{% block ppobase_purchase_order_list %}
+<sw-page class="ppobase-purchase-order-list">
+    
+    {% block ppobase_purchase_order_list_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-purchase-order.list.title') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block ppobase_purchase_order_list_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <sw-single-select
+            v-model:value="statusFilter"
+            :options="statusOptions"
+            :placeholder="$tc('ppobase-purchase-order.list.filterStatus')"
+            @update:value="onStatusFilterChange">
+        </sw-single-select>
+
+        <sw-search-bar
+            :initial-search-type="$tc('ppobase-purchase-order.list.title')"
+            :initial-search="searchTerm"
+            @search="onSearch">
+        </sw-search-bar>
+
+        <sw-button
+            variant="primary"
+            class="mt-button--default"
+            :routerLink="{ name: 'ppobase.purchase.order.create' }">
+            {{ $tc('ppobase-purchase-order.list.buttonCreate') }}
+        </sw-button>
+    </template>
+    {% endblock %}
+
+    {% block ppobase_purchase_order_list_content %}
+    <template #content>
+        <sw-entity-listing
+            v-if="purchaseOrders"
+            ref="purchaseOrderListing"
+            :repository="purchaseOrderRepository"
+            :items="purchaseOrders"
+            :columns="columns"
+            :isLoading="isLoading"
+            :showSelection="false"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange">
+
+            {% block ppobase_purchase_order_list_column_po_number %}
+            <template #column-poNumber="{ item }">
+                <router-link :to="{ name: 'ppobase.purchase.order.detail', params: { id: item.id } }">
+                    <strong>{{ item.poNumber }}</strong>
+                </router-link>
+            </template>
+            {% endblock %}
+
+            {% block ppobase_purchase_order_list_column_supplier %}
+            <template #column-supplier.companyTradeName="{ item }">
+                {{ item.supplier ? item.supplier.companyTradeName : '-' }}
+            </template>
+            {% endblock %}
+
+            {% block ppobase_purchase_order_list_column_status %}
+            <template #column-status="{ item }">
+                <sw-label
+                    :variant="getStatusVariant(item.status)"
+                    size="small"
+                    appearance="pill">
+                    {{ $tc('ppobase-purchase-order.status.' + item.status) }}
+                </sw-label>
+            </template>
+            {% endblock %}
+
+            {% block ppobase_purchase_order_list_column_order_date %}
+            <template #column-orderDate="{ item }">
+                {{ formatDate(item.orderDate) }}
+            </template>
+            {% endblock %}
+
+            {% block ppobase_purchase_order_list_column_total %}
+            <template #column-total="{ item }">
+                {{ formatCurrency(item.total, item.currency) }}
+            </template>
+            {% endblock %}
+
+            {% block ppobase_purchase_order_list_actions %}
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    :routerLink="{ name: 'ppobase.purchase.order.detail', params: { id: item.id } }">
+                    {{ $tc('ppobase-purchase-order.list.actionEdit') }}
+                </sw-context-menu-item>
+            </template>
+            {% endblock %}
+
+        </sw-entity-listing>
+
+        {% block ppobase_purchase_order_list_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && (!purchaseOrders || purchaseOrders.length === 0)"
+            :title="$tc('ppobase-purchase-order.list.emptyStateTitle')">
+        </sw-empty-state>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+</sw-page>
+{% endblock %}

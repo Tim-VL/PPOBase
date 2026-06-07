@@ -1,0 +1,37 @@
+.ppobase-product-grouped {
+    display: grid;
+    gap: 16px;
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 16px 0;
+    }
+
+    .sw-empty-state {
+        height: auto !important;
+        padding: 24px 0;
+    }
+}
+
+.ppobase-grouped-grand-total {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-top: 2px solid #d1d9e0;
+    font-weight: 600;
+    font-size: 14px;
+
+    &__label {
+        color: #52667a;
+    }
+
+    &__value {
+        min-width: 110px;
+        text-align: right;
+        color: #1a1a2e;
+    }
+}

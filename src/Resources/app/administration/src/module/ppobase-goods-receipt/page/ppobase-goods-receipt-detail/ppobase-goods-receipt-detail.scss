@@ -1,0 +1,37 @@
+.ppobase-goods-receipt-detail {
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card {
+        max-width: none !important;
+    }
+
+    .order-items, .mt-card {
+        max-width: none !important;
+    }
+
+    .sw-tabs {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+
+    .sw-field__label {
+        font-size: 12px;
+        color: #758698;
+        margin-bottom: 4px;
+    }
+
+    .sw-data-grid__cell--quantityReceived .sw-field,
+    .sw-data-grid__cell--quantityRejected .sw-field,
+    .sw-data-grid__cell--bookedPrice .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-data-grid__cell--lineTotal {
+        font-weight: 600;
+    }
+}

@@ -1,0 +1,74 @@
+{% block ppobase_supplier_list %}
+<sw-page class="ppobase-supplier-list">
+
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-supplier.list.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-search-bar
+            :initial-search-type="$tc('ppobase-supplier.list.title')"
+            :initial-search="searchTerm"
+            @search="onSearch">
+        </sw-search-bar>
+
+        <sw-button variant="primary" class="mt-button--default" :routerLink="{ name: 'ppobase.supplier.create' }">
+            {{ $tc('ppobase-supplier.list.buttonCreate') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-entity-listing
+            v-if="suppliers"
+            ref="supplierListing"
+            :repository="supplierRepository"
+            :items="suppliers"
+            :columns="columns"
+            :isLoading="isLoading"
+            :showSelection="false"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            @column-sort="onSortColumn"
+            @page-change="onPageChange">
+
+            <template #column-active="{ item }">
+                <sw-icon v-if="item.active" name="regular-checkmark-xs" small class="is--active"></sw-icon>
+                <sw-icon v-else name="regular-times-s" small class="is--inactive"></sw-icon>
+            </template>
+
+            <template #column-itemsIdRange="{ item }">
+                {{ item.itemsIdRange || '-' }}
+            </template>
+
+            <template #column-companyTradeName="{ item }">
+                <router-link :to="{ name: 'ppobase.supplier.detail', params: { id: item.id } }">
+                    {{ item.companyTradeName }}
+                </router-link>
+            </template>
+
+            <template #actions="{ item }">
+                <sw-context-menu-item :routerLink="{ name: 'ppobase.supplier.detail', params: { id: item.id } }">
+                    {{ $tc('ppobase-supplier.list.actionEdit') }}
+                </sw-context-menu-item>
+                <sw-context-menu-item @click="onMapProducts(item)">
+                    {{ $tc('ppobase-supplier.list.actionMapProducts') }}
+                </sw-context-menu-item>
+                <sw-context-menu-item variant="danger" @click="onDeleteSupplier(item)">
+                    {{ $tc('ppobase-supplier.list.actionDelete') }}
+                </sw-context-menu-item>
+            </template>
+        </sw-entity-listing>
+
+        <sw-empty-state v-if="!isLoading && (!suppliers || suppliers.length === 0)" :title="$tc('ppobase-supplier.list.emptyStateTitle')"></sw-empty-state>
+
+        <sw-modal v-if="showDeleteModal" :title="$tc('ppobase-supplier.list.deleteModalTitle')" @modal-close="onCloseDeleteModal">
+            <p>{{ $tc('ppobase-supplier.list.deleteModalText', 0, { name: supplierToDelete ? supplierToDelete.companyTradeName : '' }) }}</p>
+            <template #modal-footer>
+                <sw-button size="small" @click="onCloseDeleteModal">{{ $tc('ppobase-supplier.list.buttonCancel') }}</sw-button>
+                <sw-button variant="danger" size="small" @click="onConfirmDelete">{{ $tc('ppobase-supplier.list.buttonDelete') }}</sw-button>
+            </template>
+        </sw-modal>
+    </template>
+
+</sw-page>
+{% endblock %}

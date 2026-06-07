@@ -1,0 +1,125 @@
+.ppobase-purchase-order-detail {
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card {
+        max-width: none !important;
+    }
+
+    .order-items, .mt-card {
+        max-width: none !important;
+    }
+
+    .sw-tabs {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+    .mt-card__content {
+        min-height: 250px; 
+    }
+
+    &__totals {
+        max-width: 400px;
+        margin-left: auto;
+    }
+
+    &__totals-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #d1d9e0;
+    }
+
+    &__totals-row--total {
+        border-bottom: none;
+        font-size: 1.1em;
+        border-top: 2px solid #333;
+        margin-top: 4px;
+        padding-top: 12px;
+    }
+
+    &__email-sent-banner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        margin: 0 24px 16px;
+        background-color: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 8px;
+        color: #065f46;
+    }
+
+    &__email-sent-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        strong {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        span {
+            font-size: 13px;
+            color: #047857;
+        }
+    }
+
+    &__receipt-link {
+        color: #3b82f6;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__goods-receipts-card {
+        .mt-card__content {
+            min-height: auto !important;
+        }
+
+        .sw-card__content {
+            min-height: auto !important;
+        }
+    }
+}
+
+.ppobase-purchase-order-list {
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+}
+
+.ppobase-purchase-order-create {
+    .sw-card-view {
+        max-width: none !important;
+    }
+
+    .sw-card {
+        max-width: none !important;
+    }
+
+    .sw-page__main-content {
+        max-width: none !important;
+    }
+}
+
+.ppobase-purchase-order-detail__goods-receipts-card {
+    .mt-card__content {
+        min-height: 250px !important;
+    }
+}

@@ -1,0 +1,43 @@
+{% block sw_product_detail_content_tabs_additional %}
+    {% parent %}
+
+    <sw-tabs-item
+        class="sw-product-detail__tab-ppobase-stock"
+        :route="{ name: 'sw.product.detail.ppobaseStock', params: { id: $route.params.id } }"
+        :title="$tc('ppobase-product.tabs.stockBookings')"
+    >
+        {{ $tc('ppobase-product.tabs.stockBookings') }}
+    </sw-tabs-item>
+
+    <sw-tabs-item
+        class="sw-product-detail__tab-ppobase-purchase"
+        :route="{ name: 'sw.product.detail.ppobasePurchase', params: { id: $route.params.id } }"
+        :title="$tc('ppobase-product.tabs.purchase')"
+    >
+        {{ $tc('ppobase-product.tabs.purchase') }}
+    </sw-tabs-item>
+
+    <sw-tabs-item
+        class="sw-product-detail__tab-ppobase-packaging"
+        :route="{ name: 'sw.product.detail.ppobasePackaging', params: { id: $route.params.id } }"
+        :title="$tc('ppobase-product.tabs.packaging')"
+    >
+        {{ $tc('ppobase-product.tabs.packaging') }}
+    </sw-tabs-item>
+
+    <sw-tabs-item
+        class="sw-product-detail__tab-ppobase-history"
+        :route="{ name: 'sw.product.detail.ppobaseHistory', params: { id: $route.params.id } }"
+        :title="$tc('ppobase-product.tabs.stockHistory')"
+    >
+        {{ $tc('ppobase-product.tabs.stockHistory') }}
+    </sw-tabs-item>
+
+    <sw-tabs-item
+        class="sw-product-detail__tab-ppobase-grouped"
+        :route="{ name: 'sw.product.detail.ppobaseGrouped', params: { id: $route.params.id } }"
+        :title="$tc('ppobase-product.tabs.grouped')"
+    >
+        {{ $tc('ppobase-product.tabs.grouped') }}
+    </sw-tabs-item>
+{% endblock %}

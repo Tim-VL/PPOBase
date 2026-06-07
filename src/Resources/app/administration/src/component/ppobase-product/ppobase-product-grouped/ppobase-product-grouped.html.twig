@@ -1,0 +1,155 @@
+<div class="ppobase-product-grouped">
+    <sw-card :title="$tc('ppobase-product.grouped.cardTitle')" :isLoading="isLoading">
+
+        <!-- Toggle always visible -->
+        <sw-switch-field
+            :label="$tc('ppobase-product.grouped.enableToggle')"
+            v-model:value="isGroupedProduct"
+            @update:value="onToggleGrouped"
+            bordered
+        />
+
+        <template v-if="isGroupedProduct">
+
+            <div class="ppobase-product-grouped__toolbar">
+                <sw-button variant="ghost" size="small" @click="onAddSingle">
+                    {{ $tc('ppobase-product.grouped.addProduct') }}
+                </sw-button>
+                <sw-button variant="primary" size="small" @click="onBulkAssign">
+                    {{ $tc('ppobase-product.grouped.bulkAssign') }}
+                </sw-button>
+                <sw-button
+                    variant="primary"
+                    size="small"
+                    :isLoading="isSavingQuantities"
+                    :disabled="!hasGroupedItemChanges"
+                    @click="saveChangedItems">
+                    {{ $tc('ppobase-product.grouped.saveQuantities') }}
+                </sw-button>
+            </div>
+
+            <sw-data-grid
+                v-if="groupedItems.length"
+                :dataSource="groupedItems"
+                :columns="columns"
+                :showSelection="false"
+                :compactMode="true">
+
+                <template #column-coverUrl="{ item }">
+                    <img v-if="item.coverUrl"
+                         :src="item.coverUrl"
+                         style="width:40px;height:40px;object-fit:cover;" />
+                    <sw-icon v-else name="regular-image" size="24px" />
+                </template>
+
+                <template #column-quantity="{ item }">
+                    <sw-number-field
+                        v-model:value="item.quantity"
+                        :min="1"
+                        size="small"
+                        @update:value="onQuantityChange(item, $event)"
+                    />
+                </template>
+
+                <template #column-price="{ item }">
+                    {{ formatPrice(item.price) }}
+                </template>
+
+                <template #actions="{ item }">
+                    <sw-context-menu-item variant="danger" @click="removeItem(item.id)">
+                        {{ $tc('global.default.delete') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-data-grid>
+
+            <div v-if="groupedItems.length" class="ppobase-grouped-grand-total">
+                <span class="ppobase-grouped-grand-total__label">
+                    {{ $tc('ppobase-product.grouped.grandTotalLabel') }}
+                </span>
+                <span class="ppobase-grouped-grand-total__value">
+                    {{ formatPrice(grandTotal) }}
+                </span>
+            </div>
+
+            <sw-empty-state
+                v-if="!isLoading && groupedItems.length === 0"
+                :title="$tc('ppobase-product.grouped.emptyTitle')"
+                :subline="$tc('ppobase-product.grouped.emptySubline')"
+            />
+
+        </template>
+    </sw-card>
+
+    <!-- ── Bulk Assign Modal ─────────────────────────────────────────────── -->
+    <sw-modal
+        v-if="showBulkModal"
+        :title="$tc('ppobase-product.grouped.bulkModalTitle')"
+        variant="large"
+        @modal-close="showBulkModal = false">
+
+        <sw-simple-search-field
+            v-model:value="bulkSearchTerm"
+            @search-term-change="onBulkSearch"
+            :delay="300">
+        </sw-simple-search-field>
+
+        <sw-data-grid
+            class="mt-3"
+            :dataSource="bulkProducts"
+            :columns="bulkColumns"
+            :showSelection="true"
+            :isLoading="bulkIsLoading"
+            @selection-change="onBulkSelectionChange">
+
+            <template #column-displayName="{ item }">{{ item.displayName }}</template>
+            <template #column-productNumber="{ item }">{{ item.productNumber }}</template>
+
+            <template #pagination>
+                <sw-pagination
+                    :total="bulkTotal"
+                    :limit="bulkLimit"
+                    :page="bulkPage"
+                    @page-change="onBulkPageChange">
+                </sw-pagination>
+            </template>
+        </sw-data-grid>
+
+        <sw-loader v-if="bulkIsLoading && !bulkProducts.length" />
+
+        <template #modal-footer>
+            <sw-button @click="showBulkModal = false">
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            <sw-button
+                variant="primary"
+                :disabled="!bulkSelectedProducts.length"
+                @click="onBulkConfirm">
+                {{ $tc('ppobase-product.grouped.bulkConfirm', bulkSelectedProducts.length, { count: bulkSelectedProducts.length }) }}
+            </sw-button>
+        </template>
+    </sw-modal>
+
+    <!-- ── Add Single Product Modal ──────────────────────────────────────── -->
+    <sw-modal
+        v-if="showAddSingleModal"
+        :title="$tc('ppobase-product.grouped.addSingleTitle')"
+        @modal-close="showAddSingleModal = false">
+
+        <sw-entity-single-select
+            entity="product"
+            v-model:value="singleSelectedProductId"
+            :label="$tc('ppobase-product.grouped.selectProduct')"
+            :criteria="singleProductCriteria"
+            :label-callback="getProductDisplayName"
+        />
+
+        <template #modal-footer>
+            <sw-button @click="showAddSingleModal = false">
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            <sw-button variant="primary" :disabled="!singleSelectedProductId" @click="onAddSingleConfirm">
+                {{ $tc('global.default.add') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+</div>

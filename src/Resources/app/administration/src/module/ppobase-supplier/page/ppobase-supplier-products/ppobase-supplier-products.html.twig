@@ -1,0 +1,111 @@
+{% block ppobase_supplier_products %}
+<sw-page class="ppobase-supplier-products">
+
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('ppobase-supplier.products.title') }}
+            <template v-if="supplier"> - {{ supplier.companyTradeName }}</template>
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onCancel">
+            {{ $tc('ppobase-supplier.products.buttonBack') }}
+        </sw-button>
+
+        <sw-button variant="primary" @click="openProductModal">
+            {{ $tc('ppobase-supplier.products.buttonAddProducts') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card :title="$tc('ppobase-supplier.products.cardMappedProducts')" :isLoading="isLoading">
+
+                <template v-if="mappedProducts && mappedProducts.length > 0">
+                    <sw-data-grid
+                        :dataSource="mappedProducts"
+                        :columns="productColumns"
+                        :showSelection="false"
+                        :showActions="true">
+
+                        <template #column-productNumber="{ item }">
+                            {{ item.productNumber }}
+                        </template>
+
+                        <template #column-displayName="{ item }">
+                            {{ item.displayName }}
+                        </template>
+
+                        <template #column-stock="{ item }">
+                            {{ item.stock }}
+                        </template>
+
+                        <template #actions="{ item }">
+                            <sw-context-menu-item variant="danger" @click="removeProduct(item)">
+                                {{ $tc('ppobase-supplier.products.actionRemove') }}
+                            </sw-context-menu-item>
+                        </template>
+                    </sw-data-grid>
+                </template>
+
+                <template v-else>
+                    <sw-empty-state :title="$tc('ppobase-supplier.products.emptyStateTitle')">
+                        <template #actions>
+                            <sw-button variant="primary" @click="openProductModal">
+                                {{ $tc('ppobase-supplier.products.buttonAddProducts') }}
+                            </sw-button>
+                        </template>
+                    </sw-empty-state>
+                </template>
+            </sw-card>
+        </sw-card-view>
+
+        <sw-modal
+            v-if="showProductModal"
+            :title="$tc('ppobase-supplier.products.modalTitle')"
+            variant="large"
+            @modal-close="closeProductModal">
+
+            <sw-simple-search-field
+                v-model:value="productSearchTerm"
+                @search-term-change="onProductSearch"
+                :delay="400">
+            </sw-simple-search-field>
+
+            <sw-data-grid
+                v-if="availableProducts"
+                :dataSource="availableProducts"
+                :columns="productColumns"
+                :showSelection="true"
+                :isLoading="isLoadingProducts"
+                @selection-change="onProductSelectionChange">
+
+                <template #column-productNumber="{ item }">{{ item.productNumber }}</template>
+                <template #column-displayName="{ item }">{{ item.displayName }}</template>
+                <template #column-stock="{ item }">{{ item.stock }}</template>
+
+                <template #pagination>
+                    <sw-pagination
+                        :total="productTotal"
+                        :limit="productLimit"
+                        :page="productPage"
+                        @page-change="onProductPageChange">
+                    </sw-pagination>
+                </template>
+            </sw-data-grid>
+
+            <sw-loader v-else-if="isLoadingProducts"></sw-loader>
+            <sw-empty-state v-else :title="$tc('ppobase-supplier.products.noProductsFound')"></sw-empty-state>
+
+            <template #modal-footer>
+                <sw-button size="small" @click="closeProductModal">{{ $tc('ppobase-supplier.products.buttonCancel') }}</sw-button>
+                <sw-button variant="primary" size="small" :isLoading="isSaving" :disabled="selectedProducts.length === 0" @click="addSelectedProducts">
+                    {{ $tc('ppobase-supplier.products.buttonAddSelected') }} ({{ selectedProducts.length }})
+                </sw-button>
+            </template>
+        </sw-modal>
+    </template>
+
+</sw-page>
+{% endblock %}

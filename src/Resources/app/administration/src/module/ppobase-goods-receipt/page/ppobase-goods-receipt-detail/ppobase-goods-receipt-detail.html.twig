@@ -1,0 +1,182 @@
+{% block ppobase_goods_receipt_detail %}
+<sw-page class="ppobase-goods-receipt-detail">
+
+    <template #smart-bar-header>
+        <h2>
+            {{ pageTitle }}
+            <sw-label v-if="goodsReceipt" :variant="statusVariant" appearance="pill" size="small" style="margin-left: 12px;">
+                {{ $tc('ppobase-goods-receipt.status.' + goodsReceipt.status) }}
+            </sw-label>
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button v-if="isDraft" variant="danger" :isLoading="isCancelling" @click="onCancelReceipt">
+            {{ $tc('ppobase-goods-receipt.detail.buttonCancel') }}
+        </sw-button>
+        <sw-button v-if="isDraft" variant="ghost" :isLoading="isSaving" @click="onSave">
+            {{ $tc('ppobase-goods-receipt.detail.buttonSave') }}
+        </sw-button>
+        <sw-button v-if="isDraft" variant="primary" :isLoading="isBooking" @click="onBookReceipt">
+            {{ $tc('ppobase-goods-receipt.detail.buttonBook') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view v-if="goodsReceipt">
+
+            <sw-card :title="$tc('ppobase-goods-receipt.detail.cardReceiptInfo')" :isLoading="isLoading">
+                <sw-container columns="1fr 1fr 1fr" gap="20px">
+                    <sw-text-field v-model:value="goodsReceipt.receiptNumber" :label="$tc('ppobase-goods-receipt.detail.labelReceiptNumber')" :disabled="true"></sw-text-field>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoNumber') }}</label>
+                        <p v-if="goodsReceipt.purchaseOrder">
+                            <router-link :to="{ name: 'ppobase.purchase.order.detail', params: { id: goodsReceipt.purchaseOrderId } }">
+                                {{ goodsReceipt.purchaseOrder.poNumber }}
+                            </router-link>
+                        </p>
+                        <p v-else>-</p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelSupplier') }}</label>
+                        <p>{{ goodsReceipt.supplier ? goodsReceipt.supplier.companyTradeName : '-' }}</p>
+                    </div>
+                </sw-container>
+                <sw-container columns="1fr 1fr 1fr" gap="20px" style="margin-top: 16px;">
+                    <sw-datepicker v-model:value="goodsReceipt.receiptDate" :label="$tc('ppobase-goods-receipt.detail.labelReceiptDate')" :disabled="!isDraft"></sw-datepicker>
+                    <sw-text-field v-model:value="goodsReceipt.invoiceReference" :label="$tc('ppobase-goods-receipt.detail.labelInvoiceRef')" :disabled="!isDraft"></sw-text-field>
+                    <sw-text-field :value="$tc('ppobase-goods-receipt.status.' + goodsReceipt.status)" :label="$tc('ppobase-goods-receipt.detail.labelStatus')" :disabled="true"></sw-text-field>
+                </sw-container>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-goods-receipt.detail.cardItems')" :isLoading="isLoading">
+                <sw-data-grid
+                    v-if="goodsReceipt.items && goodsReceipt.items.length > 0"
+                    :dataSource="goodsReceipt.items"
+                    :columns="itemColumns"
+                    :showSelection="false"
+                    :isLoading="isLoading">
+                    <template #column-productName="{ item }">
+                        <span>{{ item.productName }}</span>
+                    </template>
+                    <template #column-productNumber="{ item }">
+                        <span>{{ item.productNumber || '-' }}</span>
+                    </template>
+                    <template #column-ean="{ item }">
+                        <span>{{ item.ean || '-' }}</span>
+                    </template>
+                    <template #column-mpn="{ item }">
+                        <span>{{ item.mpn || '-' }}</span>
+                    </template>
+                    <template #column-quantityExpected="{ item }">
+                        <span>{{ item.quantityExpected }}</span>
+                    </template>
+                    <template #column-quantityReceived="{ item }">
+                        <sw-number-field
+                            v-if="isDraft"
+                            v-model:value="item.quantityReceived"
+                            :min="0"
+                            size="small"
+                            @change="onItemQuantityChange(item)">
+                        </sw-number-field>
+                        <span v-else>{{ item.quantityReceived }}</span>
+                    </template>
+                    <template #column-quantityRejected="{ item }">
+                        <sw-number-field
+                            v-if="isDraft"
+                            v-model:value="item.quantityRejected"
+                            :min="0"
+                            size="small">
+                        </sw-number-field>
+                        <span v-else>{{ item.quantityRejected || 0 }}</span>
+                    </template>
+                    <template #column-unitPrice="{ item }">
+                        <span>{{ formatCurrency(item.unitPrice) }}</span>
+                    </template>
+                    <template #column-bookedPrice="{ item }">
+                        <sw-number-field
+                            v-if="isDraft"
+                            v-model:value="item.bookedPrice"
+                            :min="0"
+                            :step="0.01"
+                            size="small"
+                            @change="onItemPriceChange(item)">
+                        </sw-number-field>
+                        <span v-else>{{ formatCurrency(item.bookedPrice) }}</span>
+                    </template>
+                    <template #column-lineTotal="{ item }">
+                        <strong>{{ formatCurrency(item.lineTotal) }}</strong>
+                    </template>
+                </sw-data-grid>
+                <sw-empty-state v-else :title="$tc('ppobase-goods-receipt.detail.emptyItems')"></sw-empty-state>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-goods-receipt.detail.cardNotes')" :isLoading="isLoading">
+                <sw-text-editor
+                    :value="goodsReceipt.notes"
+                    @update:value="onTextareaChange('notes', $event)"
+                    :sanitize-input="false"
+                    :disabled="!isDraft">
+                </sw-text-editor>
+            </sw-card>
+
+            <sw-card v-if="goodsReceipt.purchaseOrder" :title="$tc('ppobase-goods-receipt.detail.cardPoDetails')">
+                <sw-container columns="1fr 1fr 1fr" gap="20px">
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoNumber') }}</label>
+                        <p>
+                            <router-link :to="{ name: 'ppobase.purchase.order.detail', params: { id: goodsReceipt.purchaseOrderId } }">
+                                <strong>{{ goodsReceipt.purchaseOrder.poNumber }}</strong>
+                            </router-link>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelSupplier') }}</label>
+                        <p>{{ goodsReceipt.supplier ? goodsReceipt.supplier.companyTradeName : '-' }}</p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoStatus') }}</label>
+                        <p>
+                            <sw-label :variant="goodsReceipt.purchaseOrder.status === 'received' ? 'success' : (goodsReceipt.purchaseOrder.status === 'cancelled' ? 'danger' : 'info')" appearance="pill" size="small">
+                                {{ $tc('ppobase-purchase-order.status.' + goodsReceipt.purchaseOrder.status) }}
+                            </sw-label>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoOrderDate') }}</label>
+                        <p>{{ goodsReceipt.purchaseOrder.orderDate ? formatDate(goodsReceipt.purchaseOrder.orderDate) : '-' }}</p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoExpectedDelivery') }}</label>
+                        <p>{{ goodsReceipt.purchaseOrder.expectedDeliveryDate ? formatDate(goodsReceipt.purchaseOrder.expectedDeliveryDate) : '-' }}</p>
+                    </div>
+                    <div>
+                        <label class="sw-field__label">{{ $tc('ppobase-goods-receipt.detail.labelPoTotal') }}</label>
+                        <p><strong>{{ formatCurrency(goodsReceipt.purchaseOrder.total) }}</strong></p>
+                    </div>
+                </sw-container>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-goods-receipt.detail.cardHistory')" :isLoading="isLoadingLogs">
+                <sw-data-grid
+                    v-if="activityLogs && activityLogs.length > 0"
+                    :dataSource="activityLogs"
+                    :columns="[
+                        { property: 'loggedAt', label: $tc('ppobase-goods-receipt.detail.columnDate'), width: '180px' },
+                        { property: 'action', label: $tc('ppobase-goods-receipt.detail.columnAction'), width: '120px' },
+                        { property: 'description', label: $tc('ppobase-goods-receipt.detail.columnDescription'), primary: true },
+                        { property: 'userName', label: $tc('ppobase-goods-receipt.detail.columnUser'), width: '120px' }
+                    ]"
+                    :showSelection="false">
+                    <template #column-loggedAt="{ item }">
+                        {{ formatDate(item.loggedAt) }}
+                    </template>
+                </sw-data-grid>
+                <sw-empty-state v-else :title="$tc('ppobase-goods-receipt.detail.noHistory')"></sw-empty-state>
+            </sw-card>
+
+        </sw-card-view>
+    </template>
+
+</sw-page>
+{% endblock %}

@@ -1,0 +1,354 @@
+<sw-page class="ppobase-manual-order-create">
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-manual-order.create.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onCancel">
+            {{ $tc('ppobase-manual-order.create.buttonCancel') }}
+        </sw-button>
+        <sw-button variant="primary" :isLoading="isCreating" :disabled="!canCreate" @click="onCreateOrder">
+            {{ $tc('ppobase-manual-order.create.buttonCreate') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardSalesChannel')">
+                <sw-single-select
+                    :label="$tc('ppobase-manual-order.create.labelSalesChannel')"
+                    :options="salesChannels"
+                    labelProperty="name"
+                    valueProperty="id"
+                    :value="salesChannelId"
+                    @update:value="onSalesChannelChange"
+                >
+                </sw-single-select>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardShippingAddress')">
+                <sw-single-select
+                    :label="$tc('ppobase-manual-order.create.labelShippingAddress')"
+                    :options="shippingAddressOptions"
+                    labelProperty="label"
+                    valueProperty="value"
+                    :value="shippingAddressId"
+                    @update:value="onShippingAddressChange"
+                    :disabled="!selectedCustomer"
+                >
+                </sw-single-select>
+
+                <template v-if="selectedCustomer">
+                    <sw-button size="small" @click="onToggleNewAddressForm" style="margin-top: 8px;">
+                        {{ $tc('ppobase-manual-order.create.buttonNewAddress') }}
+                    </sw-button>
+
+                    <template v-if="showNewAddressForm">
+                        <div class="ppobase-manual-order-create__new-address-form">
+                            <sw-entity-single-select
+                                entity="salutation"
+                                :label="$tc('sw-customer.baseForm.labelSalutation')"
+                                :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
+                                label-property="displayName"
+                                v-model:value="newAddress.salutationId"
+                                :error="requiredFieldError(newAddressValidationActive, newAddress.salutationId)"
+                                required
+                            >
+                            </sw-entity-single-select>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelFirstName')" v-model:value="newAddress.firstName" :error="requiredFieldError(newAddressValidationActive, newAddress.firstName)" required></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelLastName')" v-model:value="newAddress.lastName" :error="requiredFieldError(newAddressValidationActive, newAddress.lastName)" required></sw-text-field>
+                            </div>
+                            <sw-text-field :label="$tc('ppobase-manual-order.create.labelStreet')" v-model:value="newAddress.street" :error="requiredFieldError(newAddressValidationActive, newAddress.street)" required></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-manual-order.create.labelAdditionalAddress')" v-model:value="newAddress.additionalAddressLine1"></sw-text-field>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelZipcode')" v-model:value="newAddress.zipcode" :error="requiredFieldError(newAddressValidationActive, newAddress.zipcode)" required></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelCity')" v-model:value="newAddress.city" :error="requiredFieldError(newAddressValidationActive, newAddress.city)" required></sw-text-field>
+                            </div>
+                            <sw-entity-single-select
+                                entity="country"
+                                :label="$tc('ppobase-manual-order.create.labelCountry')"
+                                labelProperty="name"
+                                v-model:value="newAddress.countryId"
+                                :error="requiredFieldError(newAddressValidationActive, newAddress.countryId)"
+                                required
+                            >
+                            </sw-entity-single-select>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelPhone')" v-model:value="newAddress.phone"></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelCompany')" v-model:value="newAddress.company"></sw-text-field>
+                            </div>
+                            <div style="margin-top: 12px; display: flex; gap: 8px;">
+                                <sw-button variant="primary" size="small" :isLoading="savingAddress" @click="onSaveNewAddress">
+                                    {{ $tc('ppobase-manual-order.create.buttonSaveAddress') }}
+                                </sw-button>
+                                <sw-button size="small" @click="onCancelNewAddress">
+                                    {{ $tc('ppobase-manual-order.create.buttonCancelAddress') }}
+                                </sw-button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardShipping')">
+                <sw-single-select
+                    :label="$tc('ppobase-manual-order.create.labelShippingMethod')"
+                    :options="shippingMethods"
+                    labelProperty="name"
+                    valueProperty="id"
+                    :value="shippingMethodId"
+                    @update:value="onShippingMethodChange"
+                    :disabled="!salesChannelId"
+                >
+                </sw-single-select>
+
+                <sw-datepicker
+                    :label="$tc('ppobase-manual-order.create.labelShippingDate')"
+                    v-model:value="shippingDate"
+                >
+                </sw-datepicker>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardCustomer')">
+                <template v-if="!selectedCustomer">
+                    <sw-text-field
+                        :label="$tc('ppobase-manual-order.create.labelSearchCustomer')"
+                        :value="customerSearchTerm"
+                        @update:value="onCustomerSearchInput"
+                        :isLoading="customerSearchLoading"
+                    >
+                    </sw-text-field>
+
+                    <div v-if="showCustomerResults && customerSearchResults.length > 0" class="ppobase-manual-order-create__search-results">
+                        <div
+                            v-for="customer in customerSearchResults"
+                            :key="customer.id"
+                            class="ppobase-manual-order-create__product-result"
+                            @click="onSelectCustomer(customer)"
+                        >
+                            <div>
+                                <div class="ppobase-manual-order-create__product-result-name">
+                                    {{ customer.firstName }} {{ customer.lastName }}
+                                </div>
+                                <div class="ppobase-manual-order-create__product-result-meta">
+                                    {{ customer.email }} | #{{ customer.customerNumber }}
+                                </div>
+                            </div>
+                            <div v-if="customer.company" class="ppobase-manual-order-create__product-result-meta">
+                                {{ customer.company }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <sw-button size="small" @click="onToggleNewCustomerForm" style="margin-top: 12px;">
+                        {{ $tc('ppobase-manual-order.create.buttonNewCustomer') }}
+                    </sw-button>
+
+                    <template v-if="showNewCustomerForm">
+                        <div class="ppobase-manual-order-create__new-address-form" style="margin-top: 16px;">
+                            <sw-entity-single-select
+                                entity="salutation"
+                                :label="$tc('sw-customer.baseForm.labelSalutation')"
+                                :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
+                                label-property="displayName"
+                                v-model:value="newCustomer.salutationId"
+                                :error="requiredFieldError(newCustomerValidationActive, newCustomer.salutationId)"
+                                required
+                            >
+                            </sw-entity-single-select>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelFirstName')" v-model:value="newCustomer.firstName" :error="requiredFieldError(newCustomerValidationActive, newCustomer.firstName)" required></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelLastName')" v-model:value="newCustomer.lastName" :error="requiredFieldError(newCustomerValidationActive, newCustomer.lastName)" required></sw-text-field>
+                            </div>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelEmail')" v-model:value="newCustomer.email" :error="requiredFieldError(newCustomerValidationActive, newCustomer.email)" required></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelPhone')" v-model:value="newCustomer.phone"></sw-text-field>
+                            </div>
+                            <sw-text-field :label="$tc('ppobase-manual-order.create.labelCompany')" v-model:value="newCustomer.company"></sw-text-field>
+                            <sw-text-field :label="$tc('ppobase-manual-order.create.labelStreet')" v-model:value="newCustomer.street" :error="requiredFieldError(newCustomerValidationActive, newCustomer.street)" required></sw-text-field>
+                            <div class="ppobase-manual-order-create__step-row">
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelZipcode')" v-model:value="newCustomer.zipcode" :error="requiredFieldError(newCustomerValidationActive, newCustomer.zipcode)" required></sw-text-field>
+                                <sw-text-field :label="$tc('ppobase-manual-order.create.labelCity')" v-model:value="newCustomer.city" :error="requiredFieldError(newCustomerValidationActive, newCustomer.city)" required></sw-text-field>
+                            </div>
+                            <sw-entity-single-select
+                                entity="country"
+                                :label="$tc('ppobase-manual-order.create.labelCountry')"
+                                labelProperty="name"
+                                v-model:value="newCustomer.countryId"
+                                :error="requiredFieldError(newCustomerValidationActive, newCustomer.countryId)"
+                                required
+                            >
+                            </sw-entity-single-select>
+                            <sw-button variant="primary" size="small" :isLoading="savingCustomer" @click="onSaveNewCustomer" style="margin-top: 12px;">
+                                {{ $tc('ppobase-manual-order.create.buttonSaveCustomer') }}
+                            </sw-button>
+                        </div>
+                    </template>
+                </template>
+
+                <template v-else>
+                    <div class="ppobase-manual-order-create__customer-badge">
+                        <div>
+                            <strong>{{ selectedCustomer.firstName }} {{ selectedCustomer.lastName }}</strong><br>
+                            {{ selectedCustomer.email }}
+                            <template v-if="selectedCustomer.customerNumber">
+                                | #{{ selectedCustomer.customerNumber }}
+                            </template>
+                        </div>
+                        <sw-button size="x-small" @click="onChangeCustomer">
+                            {{ $tc('ppobase-manual-order.create.buttonChangeCustomer') }}
+                        </sw-button>
+                    </div>
+                </template>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardItems')">
+                <div class="ppobase-manual-order-create__items-search">
+                    <sw-text-field
+                        :label="$tc('ppobase-manual-order.create.labelSearchProduct')"
+                        :value="productSearchTerm"
+                        @update:value="onProductSearchInput"
+                        :isLoading="productSearchLoading"
+                        :disabled="!salesChannelId"
+                    >
+                    </sw-text-field>
+
+                    <div v-if="showProductResults && productSearchResults.length > 0" class="ppobase-manual-order-create__search-results">
+                        <div
+                            v-for="product in productSearchResults"
+                            :key="product.id"
+                            class="ppobase-manual-order-create__product-result"
+                            @click="onSelectProduct(product)"
+                        >
+                            <div>
+                                <div class="ppobase-manual-order-create__product-result-name">{{ product.name }}</div>
+                                <div class="ppobase-manual-order-create__product-result-meta">SKU: {{ product.productNumber }} <template v-if="product.isVariant"><span class="ppobase-manual-order-create__variant-badge">Variant</span></template></div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="ppobase-manual-order-create__product-result-name">{{ formatPrice(product.price) }}</div>
+                                <div class="ppobase-manual-order-create__product-result-meta">Stock: {{ product.stock }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <template v-if="orderItems.length === 0">
+                    <div style="text-align: center; padding: 30px 0; color: #9e9e9e;">
+                        {{ $tc('ppobase-manual-order.create.emptyItems') }}
+                    </div>
+                </template>
+
+                <template v-else>
+                    <table class="ppobase-manual-order-create__items-table">
+                        <thead>
+                            <tr>
+                                <th>{{ $tc('ppobase-manual-order.create.columnProduct') }}</th>
+                                <th>{{ $tc('ppobase-manual-order.create.columnSku') }}</th>
+                                <th style="width: 120px;">{{ $tc('ppobase-manual-order.create.columnUnitPrice') }}</th>
+                                <th style="width: 90px;">{{ $tc('ppobase-manual-order.create.columnQuantity') }}</th>
+                                <th style="width: 90px;">{{ $tc('ppobase-manual-order.create.columnTaxRate') }}</th>
+                                <th style="width: 110px; text-align: right;">{{ $tc('ppobase-manual-order.create.columnLineTotal') }}</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in orderItems" :key="index">
+                                <td>
+                                    {{ item.productName }}
+                                    <sw-label
+                                        v-if="item.ppobaseGroupedChild"
+                                        size="small"
+                                        appearance="pill"
+                                        variant="info"
+                                        style="margin-left: 8px;">
+                                        {{ $tc('ppobase-manual-order.create.groupedChildLabel') }}
+                                    </sw-label>
+                                </td>
+                                <td>{{ item.productNumber }}</td>
+                                <td>
+                                    <input type="number" class="ppobase-manual-order-create__inline-input" :value="item.unitPrice" @input="onItemPriceChange(index, $event.target.value)" step="0.01" min="0" :disabled="item.ppobaseGroupedChild">
+                                </td>
+                                <td>
+                                    <input type="number" class="ppobase-manual-order-create__inline-input" :value="item.quantity" @input="onItemQuantityChange(index, $event.target.value)" min="1" step="1" :disabled="item.ppobaseGroupedChild">
+                                </td>
+                                <td style="text-align: center;">
+                                    {{ item.taxRate }}%
+                                </td>
+                                <td style="text-align: right; font-weight: 600;">
+                                    {{ formatPrice(item.lineTotal) }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <sw-button size="x-small" variant="danger" @click="onRemoveItem(index)">
+                                        ✕
+                                    </sw-button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </template>
+
+                <template v-if="orderItems.length > 0">
+                    <div class="ppobase-manual-order-create__totals">
+                        <div class="ppobase-manual-order-create__totals-row">
+                            <span>{{ $tc('ppobase-manual-order.create.labelSubtotal') }}</span>
+                            <span>{{ formatPrice(subtotal) }}</span>
+                        </div>
+                        <div class="ppobase-manual-order-create__totals-row" v-if="shippingCosts > 0">
+                            <span>{{ $tc('ppobase-manual-order.create.labelShippingCosts') }}</span>
+                            <span>{{ formatPrice(shippingCosts) }}</span>
+                        </div>
+                        <div class="ppobase-manual-order-create__totals-row">
+                            <span>{{ $tc('ppobase-manual-order.create.labelTaxAmount') }}</span>
+                            <span>{{ formatPrice(taxAmount) }}</span>
+                        </div>
+                        <div class="ppobase-manual-order-create__totals-row ppobase-manual-order-create__totals-row--grand">
+                            <span>{{ $tc('ppobase-manual-order.create.labelGrandTotal') }}</span>
+                            <span>{{ formatPrice(grandTotal) }}</span>
+                        </div>
+                    </div>
+                </template>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardPayment')">
+                <sw-single-select
+                    :label="$tc('ppobase-manual-order.create.labelPaymentMethod')"
+                    :options="paymentMethods"
+                    labelProperty="name"
+                    valueProperty="id"
+                    :value="paymentMethodId"
+                    @update:value="onPaymentMethodChange"
+                    :disabled="!salesChannelId"
+                >
+                </sw-single-select>
+            </sw-card>
+
+            <sw-card :title="$tc('ppobase-manual-order.create.cardOptions')">
+                <sw-text-field
+                    :label="$tc('ppobase-manual-order.create.labelOrderReference')"
+                    v-model:value="orderReference"
+                >
+                </sw-text-field>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #52667a;">{{ $tc('ppobase-manual-order.create.labelNotes') }}</label>
+                    <sw-text-editor
+                        v-model:value="notes"
+                        :placeholder="$tc('ppobase-manual-order.create.placeholderNotes')"
+                        :sanitize-input="false"
+                    >
+                    </sw-text-editor>
+                </div>
+
+                <sw-checkbox-field
+                    :label="$tc('ppobase-manual-order.create.labelSendConfirmation')"
+                    v-model:value="sendConfirmation"
+                >
+                </sw-checkbox-field>
+            </sw-card>
+
+        </sw-card-view>
+
+    </template>
+</sw-page>

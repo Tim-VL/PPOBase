@@ -1,0 +1,12 @@
+{% block sw_product_deliverability_form_stock_field %}
+    <mt-number-field
+        v-model="product.stock"
+        name="sw-field--product-stock"
+        number-type="int"
+        :disabled="true"
+        :label="$tc('sw-product.settingsForm.labelStock')"
+        :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+        :help-text="$tc('ppobase-product.stockField.helpText')"
+        :error="productStockError"
+    />
+{% endblock %}

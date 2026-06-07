@@ -1,0 +1,110 @@
+.ppobase-manual-order-detail {
+
+    &__info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 24px;
+    }
+
+    &__info-row {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__info-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #9aabb7;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+    }
+
+    &__info-value {
+        font-size: 14px;
+        color: #1a1e24;
+    }
+
+    &__address-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+
+        h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #9aabb7;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+    }
+
+    &__address-block {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #1a1e24;
+    }
+
+    &__items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 16px;
+
+        th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #9aabb7;
+            border-bottom: 2px solid #edf1f5;
+        }
+
+        td {
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f3f7;
+            color: #1a1e24;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+    }
+
+    &__totals {
+        width: 320px;
+        margin-left: auto;
+        margin-top: 8px;
+    }
+
+    &__totals-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-bottom: 1px solid #edf1f5;
+
+        &--grand {
+            background: #189eff;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 4px;
+            border: none;
+        }
+    }
+    &__link {
+        color: #189eff;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .mt-card {
+        max-width: none !important;
+    }
+}

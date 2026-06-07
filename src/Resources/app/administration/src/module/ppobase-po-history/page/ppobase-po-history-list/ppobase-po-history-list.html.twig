@@ -1,0 +1,121 @@
+{% block ppobase_po_history_list %}
+<sw-page class="ppobase-po-history-list">
+
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-po-history.list.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button @click="onRefresh" variant="ghost" size="small">
+            {{ $tc('ppobase-po-history.list.buttonRefresh') }}
+        </sw-button>
+    </template>
+
+    <template #search-bar>
+        <sw-search-bar
+            :initial-search-type="$tc('ppobase-po-history.general.mainMenuLabel')"
+            :placeholder="$tc('ppobase-po-history.list.searchPlaceholder')"
+            @search="onSearch">
+        </sw-search-bar>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-card :isLoading="isLoading" :title="$tc('ppobase-po-history.list.cardTitle')">
+
+                {# Filters toolbar #}
+                <template #toolbar>
+                    <sw-container columns="220px 1fr" gap="12px" align="center">
+                        <sw-single-select
+                            v-model:value="filterAction"
+                            :options="actionOptions"
+                            :label="$tc('ppobase-po-history.list.filterAction')"
+                            size="small"
+                            @update:value="onFilterChange">
+                        </sw-single-select>
+                    </sw-container>
+                </template>
+
+                {# Data grid #}
+                <sw-data-grid
+                    v-if="logs && total > 0"
+                    :dataSource="logs"
+                    :columns="columns"
+                    :showSelection="false"
+                    :showActions="true"
+                    :sortBy="sortBy"
+                    :sortDirection="sortDirection"
+                    :isLoading="isLoading"
+                    @column-sort="onSort">
+
+                    {# Date column #}
+                    <template #column-loggedAt="{ item }">
+                        <span class="ppobase-po-history-list__date">
+                            {{ formatDate(item.loggedAt) }}
+                        </span>
+                    </template>
+
+                    {# PO Number column - prominent styling #}
+                    <template #column-referenceNumber="{ item }">
+                        <strong class="ppobase-po-history-list__po-number">
+                            {{ item.referenceNumber || '—' }}
+                        </strong>
+                    </template>
+
+                    {# Event column - action badge with icon #}
+                    <template #column-action="{ item }">
+                        <sw-label
+                            :variant="getActionVariant(item.action)"
+                            size="small"
+                            appearance="pill">
+                            {{ getActionLabel(item.action) }}
+                        </sw-label>
+                    </template>
+
+                    {# Description column #}
+                    <template #column-description="{ item }">
+                        <span class="ppobase-po-history-list__description">
+                            {{ item.description || '—' }}
+                        </span>
+                    </template>
+
+                    {# User column #}
+                    <template #column-userName="{ item }">
+                        {{ item.userName || '—' }}
+                    </template>
+
+                    {# Row actions #}
+                    <template #actions="{ item }">
+                        <sw-context-menu-item
+                            v-if="hasDetails(item)"
+                            @click="onRowClick(item)">
+                            {{ $tc('ppobase-po-history.list.actionViewChanges') }}
+                        </sw-context-menu-item>
+                    </template>
+
+                </sw-data-grid>
+
+                {# Empty state #}
+                <sw-empty-state
+                    v-else-if="!isLoading"
+                    :title="$tc('ppobase-po-history.list.emptyTitle')"
+                    :subline="$tc('ppobase-po-history.list.emptySubline')">
+                </sw-empty-state>
+
+            </sw-card>
+
+            {# Pagination #}
+            <sw-pagination
+                v-if="total > limit"
+                :total="total"
+                :limit="limit"
+                :currentPage="page"
+                :steps="[25, 50, 100]"
+                @page-change="onPageChange">
+            </sw-pagination>
+
+        </sw-card-view>
+    </template>
+
+</sw-page>
+{% endblock %}

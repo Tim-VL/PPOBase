@@ -1,0 +1,18 @@
+{% sw_extends '@Storefront/storefront/component/line-item/element/image.html.twig' %}
+
+{% block component_line_item_image %}
+    {% if lineItem.payload.ppobase_grouped_child is defined
+        and lineItem.payload.ppobase_grouped_child
+        and lineItem.cover.url is empty
+        and lineItem.payload.ppobase_cover_url is not empty %}
+        <img
+            src="{{ lineItem.payload.ppobase_cover_url }}"
+            class="img-fluid line-item-img"
+            alt="{{ label }}"
+            title="{{ label }}"
+            loading="lazy"
+        >
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

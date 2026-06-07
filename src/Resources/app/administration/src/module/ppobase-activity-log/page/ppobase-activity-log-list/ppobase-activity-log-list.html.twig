@@ -1,0 +1,87 @@
+{% block ppobase_activity_log_list %}
+<sw-page class="ppobase-activity-log-list">
+
+    <template #smart-bar-header>
+        <h2>{{ $tc('ppobase-activity-log.list.title') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button class="mt-button--default" @click="loadActivityLogs" :isLoading="isLoading">
+            {{ $tc('ppobase-activity-log.list.buttonRefresh') }}
+        </sw-button>
+    </template>
+
+    <template #content>
+        <sw-card :title="$tc('ppobase-activity-log.list.cardFilters')">
+            <sw-container columns="1fr 1fr 1fr" gap="20px">
+                <sw-single-select
+                    v-model:value="filterEntityType"
+                    :options="entityTypeOptions"
+                    :label="$tc('ppobase-activity-log.list.labelEntityType')"
+                    @update:value="onFilterChange">
+                </sw-single-select>
+
+                <sw-single-select
+                    v-model:value="filterAction"
+                    :options="actionOptions"
+                    :label="$tc('ppobase-activity-log.list.labelAction')"
+                    @update:value="onFilterChange">
+                </sw-single-select>
+            </sw-container>
+        </sw-card>
+
+        <sw-card :isLoading="isLoading">
+            <sw-data-grid
+                v-if="activityLogs && activityLogs.length > 0"
+                :dataSource="activityLogs"
+                :columns="columns"
+                :showSelection="false"
+                :showActions="false"
+                :sortBy="sortBy"
+                :sortDirection="sortDirection"
+                @column-sort="onColumnSort">
+                
+                <template #column-loggedAt="{ item }">
+                    {{ formatDate(item.loggedAt) }}
+                </template>
+
+                <template #column-entityType="{ item }">
+                    <sw-label size="small" appearance="pill">
+                        {{ getEntityTypeLabel(item.entityType) }}
+                    </sw-label>
+                </template>
+
+                <template #column-action="{ item }">
+                    <sw-label :variant="getActionVariant(item.action)" size="small" appearance="pill">
+                        {{ item.action }}
+                    </sw-label>
+                </template>
+
+                <template #column-referenceNumber="{ item }">
+                    <strong v-if="item.referenceNumber">{{ item.referenceNumber }}</strong>
+                    <span v-else>-</span>
+                </template>
+
+                <template #column-ipAddress="{ item }">
+                    <code v-if="item.ipAddress">{{ item.ipAddress }}</code>
+                    <span v-else>-</span>
+                </template>
+            </sw-data-grid>
+
+            <sw-pagination
+                v-if="total > 0"
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :steps="[10, 25, 50, 100]"
+                @page-change="onPageChange">
+            </sw-pagination>
+
+            <sw-empty-state
+                v-else-if="!isLoading"
+                :title="$tc('ppobase-activity-log.list.emptyStateTitle')">
+            </sw-empty-state>
+        </sw-card>
+    </template>
+</sw-page>
+{% endblock %}

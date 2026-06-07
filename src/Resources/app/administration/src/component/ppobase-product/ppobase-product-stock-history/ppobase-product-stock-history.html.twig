@@ -1,0 +1,43 @@
+<div class="ppobase-product-stock-history">
+    <sw-card :title="$tc('ppobase-product.history.cardTitle')" :isLoading="isLoading">
+        <sw-switch-field
+            v-model:value="includeAll"
+            :label="$tc('ppobase-product.history.labelIncludeCancelled')"
+            @update:value="loadHistory"
+        />
+
+        <sw-data-grid
+            :dataSource="entries"
+            :columns="columns"
+            :showActions="false"
+            :showSelection="false"
+        >
+            <template #column-date="{ item }">
+                {{ formatDate(item.date) }}
+            </template>
+
+            <template #column-type="{ item }">
+                <sw-label :variant="typeVariant(item.type)">{{ typeLabel(item.type) }}</sw-label>
+            </template>
+
+            <template #column-reference="{ item }">
+                <a href="#" @click.prevent="onReferenceClick(item)">{{ item.reference }}</a>
+            </template>
+
+            <template #column-quantityChange="{ item }">
+                {{ formatQuantity(item.quantityChange) }}
+            </template>
+
+            <template #column-stockAfter="{ item }">
+                <span v-if="item.stockAfter !== null && item.stockAfter !== undefined">{{ item.stockAfter }}</span>
+                <span v-else>-</span>
+            </template>
+
+            <template #column-unitPrice="{ item }">
+                {{ formatCurrency(item.unitPrice) }}
+            </template>
+        </sw-data-grid>
+
+        <sw-empty-state v-if="!entries.length" :title="$tc('ppobase-product.history.emptyHistory')" />
+    </sw-card>
+</div>

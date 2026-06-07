@@ -1,0 +1,95 @@
+{% block ppobase_sales_report_customers %}
+<sw-page class="ppobase-sales-report">
+    <template #content>
+        <sw-card-view>
+            <div class="ppobase-sales-report__date-filter">
+                <sw-datepicker v-model:value="dateFrom" :label="$tc('ppobase-sales-report.common.labelDateFrom')" dateType="date" size="small"></sw-datepicker>
+                <sw-datepicker v-model:value="dateTo" :label="$tc('ppobase-sales-report.common.labelDateTo')" dateType="date" size="small"></sw-datepicker>
+                <sw-button variant="primary" size="small" @click="onApplyFilter">{{ $tc('ppobase-sales-report.common.buttonApply') }}</sw-button>
+                <sw-button variant="ghost" size="small" @click="onResetFilter">{{ $tc('ppobase-sales-report.common.buttonReset') }}</sw-button>
+            </div>
+
+            <div class="ppobase-sales-report__chart-row">
+                <div class="ppobase-sales-report__chart-container">
+                    <h4>{{ $tc('ppobase-sales-report.customers.chartTitle') }}</h4>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="ppobase-sales-report-customers-chart"></canvas>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__chart-container">
+                    <h4>{{ $tc('ppobase-sales-report.common.labelTotalOrders') }}</h4>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="ppobase-sales-report-customers-doughnut"></canvas>
+                    </div>
+                </div>
+                <sw-loader v-if="isLoading"></sw-loader>
+            </div>
+
+            <div class="ppobase-sales-report__summary-cards" v-if="summary">
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--customers">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-users" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ summary.totalCustomers }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelTotalCustomers') }}</div>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--orders">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-shopping-bag" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ summary.totalOrders }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelTotalOrders') }}</div>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--revenue">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-chart-line" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ formatMoney(summary.totalRevenue) }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.common.labelTotalRevenue') }}</div>
+                    </div>
+                </div>
+                <div class="ppobase-sales-report__summary-card ppobase-sales-report__summary-card--avg">
+                    <div class="ppobase-sales-report__summary-card-icon">
+                        <sw-icon name="regular-list" size="24px"></sw-icon>
+                    </div>
+                    <div class="ppobase-sales-report__summary-card-content">
+                        <div class="ppobase-sales-report__summary-card-value">{{ summary.avgOrdersPerCustomer }}</div>
+                        <div class="ppobase-sales-report__summary-card-label">{{ $tc('ppobase-sales-report.customers.columnOrderCount') }} / {{ $tc('ppobase-sales-report.common.labelTotalCustomers') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <sw-card :title="$tc('ppobase-sales-report.customers.title')" :isLoading="isLoading">
+                <sw-data-grid
+                    v-if="pagedGridRows && pagedGridRows.length"
+                    :dataSource="pagedGridRows"
+                    :columns="columns"
+                    :showSelection="false"
+                    :allowInlineEdit="false"
+                    @column-sort="onColumnSort">
+                    <template #column-name="{ item }">
+                        <a class="ppobase-sales-report__link" @click.prevent="onCustomerClick(item)">{{ item.name }}</a>
+                    </template>
+                    <template #column-total_revenue="{ item }">{{ formatMoney(item.total_revenue) }}</template>
+                    <template #column-last_order_date="{ item }">{{ formatDate(item.last_order_date) }}</template>
+                </sw-data-grid>
+
+                <sw-pagination
+                    v-if="total > 0"
+                    :page="page"
+                    :limit="limit"
+                    :total="total"
+                    :steps="[10, 25, 50, 100]"
+                    @page-change="onPageChange">
+                </sw-pagination>
+                <sw-empty-state v-else :title="$tc('ppobase-sales-report.customers.emptyState')"></sw-empty-state>
+            </sw-card>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

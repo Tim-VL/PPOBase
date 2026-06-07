@@ -1,0 +1,13 @@
+.sw-page.sw-product-detail {
+    .sw-card-view,
+    .sw-card-view__content,
+    .sw-page__main-content,
+    .sw-page__main-content-inner,
+    .sw-card,
+    .mt-card {
+        max-width: none !important;
+    }
+    .sw-tabs.sw-tabs--small {
+        max-width: none !important;
+    }
+}

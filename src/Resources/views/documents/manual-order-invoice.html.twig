@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice {{ order.orderNumber }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #333; }
+        .container { padding: 30px 40px; max-width: 800px; margin: 0 auto; }
+        .header { display: table; width: 100%; border-bottom: 3px solid #1E88E5; padding-bottom: 15px; margin-bottom: 30px; }
+        .header-left { display: table-cell; width: 50%; vertical-align: top; }
+        .header-right { display: table-cell; width: 50%; text-align: right; vertical-align: top; }
+        .title { font-size: 24pt; font-weight: bold; color: #1E88E5; }
+        .order-num { font-size: 12pt; color: #666; margin-top: 4px; }
+        .info-section { display: table; width: 100%; margin-bottom: 30px; }
+        .info-box { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+        .info-box:last-child { padding-right: 0; padding-left: 20px; }
+        .info-box h3 { font-size: 11pt; color: #1E88E5; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; }
+        .info-row { margin-bottom: 4px; font-size: 9.5pt; }
+        .info-label { color: #888; font-size: 8.5pt; text-transform: uppercase; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .items-table th { background: #1E88E5; color: #fff; padding: 9px 7px; text-align: left; font-size: 8pt; text-transform: uppercase; }
+        .items-table th.right { text-align: right; }
+        .items-table th.center { text-align: center; }
+        .items-table td { padding: 9px 7px; border-bottom: 1px solid #eee; font-size: 8.5pt; vertical-align: top; }
+        .items-table td.right { text-align: right; }
+        .items-table td.center { text-align: center; }
+        .items-table tr:nth-child(even) { background: #f9f9f9; }
+        .totals { width: 300px; margin-left: auto; margin-bottom: 25px; }
+        .totals-row { display: table; width: 100%; padding: 8px 12px; border-bottom: 1px solid #eee; }
+        .totals-row:last-child { border-bottom: none; }
+        .totals-row.grand { background: #1E88E5; }
+        .totals-row.grand .totals-label, .totals-row.grand .totals-value { color: #fff; font-weight: bold; font-size: 11pt; }
+        .totals-label { display: table-cell; width: 55%; color: #555; font-size: 9pt; }
+        .totals-value { display: table-cell; width: 45%; text-align: right; font-size: 9pt; font-weight: 600; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 8pt; color: #999; text-align: center; }
+        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="title">INVOICE</div>
+                <div class="order-num">{{ order.orderNumber }}</div>
+            </div>
+            <div class="header-right">
+                <div class="info-label">Date</div>
+                <div class="info-row">{{ order.orderDate|date('d/m/Y') }}</div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Bill To</h3>
+                <div class="info-row"><strong>{{ order.customerName }}</strong></div>
+                <div class="info-row">{{ order.customerEmail }}</div>
+                {% if order.billingAddress %}
+                    {% if order.billingAddress.company %}<div class="info-row">{{ order.billingAddress.company }}</div>{% endif %}
+                    <div class="info-row">{{ order.billingAddress.street }}</div>
+                    <div class="info-row">{{ order.billingAddress.zipcode }} {{ order.billingAddress.city }}</div>
+                    <div class="info-row">{{ order.billingAddress.country }}</div>
+                {% endif %}
+                <h3 style="margin-top: 14px;">Ship To</h3>
+                {% set ship = order.shippingAddress|default(order.billingAddress) %}
+                {% if ship %}
+                    {% if ship.company %}<div class="info-row">{{ ship.company }}</div>{% endif %}
+                    <div class="info-row">{{ ship.firstName }} {{ ship.lastName }}</div>
+                    <div class="info-row">{{ ship.street }}</div>
+                    {% if ship.additionalAddressLine1 %}<div class="info-row">{{ ship.additionalAddressLine1 }}</div>{% endif %}
+                    <div class="info-row">{{ ship.zipcode }} {{ ship.city }}</div>
+                    <div class="info-row">{{ ship.country }}</div>
+                {% endif %}
+            </div>
+            <div class="info-box">
+                <h3>Order Details</h3>
+                <div class="info-row"><span class="info-label">Currency:</span> {{ order.currency }}</div>
+                <div class="info-row"><span class="info-label">Payment:</span> {{ order.paymentMethod|default('N/A') }}</div>
+                <div class="info-row"><span class="info-label">Shipping:</span> {{ order.shippingMethod|default('N/A') }}</div>
+                {% if order.orderReference %}
+                    <div class="info-row"><span class="info-label">Reference:</span> {{ order.orderReference }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th class="center">Qty</th>
+                    <th class="right">Unit Price</th>
+                    <th class="right">Tax</th>
+                    <th class="right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                <tr>
+                    <td>{{ item.productName }}</td>
+                    <td>{{ item.productNumber }}</td>
+                    <td class="center">{{ item.quantity }}</td>
+                    <td class="right">{{ item.unitPrice|number_format(2) }}</td>
+                    <td class="right">{{ item.taxRate }}%</td>
+                    <td class="right">{{ item.totalPrice|number_format(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="totals-row">
+                <div class="totals-label">Subtotal</div>
+                <div class="totals-value">{{ order.currency }} {{ order.subtotal|number_format(2) }}</div>
+            </div>
+            <div class="totals-row">
+                <div class="totals-label">Tax</div>
+                <div class="totals-value">{{ order.currency }} {{ order.taxAmount|number_format(2) }}</div>
+            </div>
+            <div class="totals-row grand">
+                <div class="totals-label">Grand Total</div>
+                <div class="totals-value">{{ order.currency }} {{ order.grandTotal|number_format(2) }}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Generated by PPOBase
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Delivery Note {{ order.orderNumber }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #333; }
+        .container { padding: 30px 40px; max-width: 800px; margin: 0 auto; }
+        .header { display: table; width: 100%; border-bottom: 3px solid #388E3C; padding-bottom: 15px; margin-bottom: 30px; }
+        .header-left { display: table-cell; width: 50%; vertical-align: top; }
+        .header-right { display: table-cell; width: 50%; text-align: right; vertical-align: top; }
+        .title { font-size: 24pt; font-weight: bold; color: #388E3C; }
+        .order-num { font-size: 12pt; color: #666; margin-top: 4px; }
+        .info-section { display: table; width: 100%; margin-bottom: 30px; }
+        .info-box { display: table-cell; width: 50%; vertical-align: top; padding-right: 20px; }
+        .info-box:last-child { padding-right: 0; padding-left: 20px; }
+        .info-box h3 { font-size: 11pt; color: #388E3C; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; }
+        .info-row { margin-bottom: 4px; font-size: 9.5pt; }
+        .info-label { color: #888; font-size: 8.5pt; text-transform: uppercase; }
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .items-table th { background: #388E3C; color: #fff; padding: 9px 7px; text-align: left; font-size: 8pt; text-transform: uppercase; }
+        .items-table th.center { text-align: center; }
+        .items-table td { padding: 9px 7px; border-bottom: 1px solid #eee; font-size: 8.5pt; vertical-align: top; }
+        .items-table td.center { text-align: center; }
+        .items-table tr:nth-child(even) { background: #f9f9f9; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 8pt; color: #999; text-align: center; }
+        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="title">DELIVERY NOTE</div>
+                <div class="order-num">{{ order.orderNumber }}</div>
+            </div>
+            <div class="header-right">
+                <div class="info-label">Order Date</div>
+                <div class="info-row">{{ order.orderDate|date('d/m/Y') }}</div>
+                {% if order.shippingDate %}
+                    <div class="info-label" style="margin-top: 8px;">Shipping Date</div>
+                    <div class="info-row">{{ order.shippingDate|date('d/m/Y') }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-box">
+                <h3>Ship To</h3>
+                {% set addr = order.shippingAddress|default(order.billingAddress) %}
+                {% if addr %}
+                    {% if addr.company %}<div class="info-row"><strong>{{ addr.company }}</strong></div>{% endif %}
+                    <div class="info-row">{{ addr.firstName }} {{ addr.lastName }}</div>
+                    <div class="info-row">{{ addr.street }}</div>
+                    {% if addr.additionalAddressLine1 %}<div class="info-row">{{ addr.additionalAddressLine1 }}</div>{% endif %}
+                    <div class="info-row">{{ addr.zipcode }} {{ addr.city }}</div>
+                    <div class="info-row">{{ addr.country }}</div>
+                {% endif %}
+            </div>
+            <div class="info-box">
+                <h3>Shipping Details</h3>
+                <div class="info-row"><span class="info-label">Method:</span> {{ order.shippingMethod|default('N/A') }}</div>
+                <div class="info-row"><span class="info-label">Customer:</span> {{ order.customerName }}</div>
+                {% if order.orderReference %}
+                    <div class="info-row"><span class="info-label">Reference:</span> {{ order.orderReference }}</div>
+                {% endif %}
+                {% if order.notes|default('') is not empty %}
+                    <div class="info-row"><span class="info-label">Notes:</span> <span style="white-space: pre-wrap;">{{ order.notes }}</span></div>
+                {% else %}
+                    <div class="info-row"><span class="info-label">Notes:</span> N/A</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th class="center">Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items %}
+                <tr>
+                    <td>{{ item.productName }}</td>
+                    <td>{{ item.productNumber }}</td>
+                    <td class="center">{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Generated by PPOBase
+        </div>
+    </div>
+</body>
+</html>
