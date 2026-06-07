@@ -1,7 +1,6 @@
 # PPOBase Client Manual
 
 **Shopware 6.7.x ERP and purchasing plugin**  
-Prepared by the developer for the client
 
 ---
 
