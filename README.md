@@ -1,4 +1,3 @@
-````markdown
 # PPOBase Client Manual
 
 **Shopware 6.7.x ERP and purchasing plugin**  
@@ -619,5 +618,4 @@ Settings > Mailer
 | ------- | --------------------- |
 | 1.1     | Initial client manual |
 
-```
 ```
