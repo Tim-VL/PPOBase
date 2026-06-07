@@ -1,151 +1,42 @@
-# PPOBase - POBase ERP Module for Shopware 6.6
-
-PPOBase adds some base ERP-style tools to Shopware.
-It is used to manage suppliers, link products to suppliers, create purchase orders, receive goods, update stock, create manual sales orders, view activity logs, and review sales reports.
-
-## Features (V1 - Current)
-
-### Supplier Management
-- Full CRUD operations (Create, Read, Update, Delete)
-- Comprehensive supplier data:
-  - Company details (trade name, official name, VAT, registration numbers)
-  - Primary and general contact information
-  - Billing and shipping addresses
-  - Logistics settings (lead time, delivery days)
-  - Commercial terms (currency, payment terms, incoterms, discounts)
-- Auto-generated supplier numbers (SUP-0001 format)
-- Active/inactive status toggle
-- Search and filtering
-- Paginated list view
-
-## Requirements
-
-- Shopware 6.7.x
-- PHP 8.1 or higher
-
-## Installation
-
-### Via Composer (Recommended)
-
-```bash
-composer require ppobase/ppobase
-bin/console plugin:refresh
-bin/console plugin:install --activate PPOBase
-bin/console cache:clear
-```
-
-### Manual Installation
-
-1. Download or clone this repository
-2. Log into the Backend: Log into your Shopware 6 backend.
-3. Navigate to Extensions: In the left navigation bar, go to “Extensions” and select “My Extensions.”
-4. Add the Plugin: Click “Upload Extension” to add the plugin you previously downloaded to your shop.
-5. Start Installation: After uploading, the plugin will appear in your list of extensions. Click “Install” to start the installation process.
-6. Activate the Plugin: Once the installation is complete, you will need to activate the plugin. You can do this directly in the installation window by clicking “Activate.”
-
-
-
-1. Download or clone this repository
-2. Extract to `custom/plugins/PPOBase`
-3. Run the following commands:
-
-```bash
-bin/console plugin:refresh
-bin/console plugin:install --activate PPOBase
-bin/console cache:clear
-```
-
-### Build Administration Assets
-
-After installation, rebuild the administration:
-
-```bash
-bin/build-administration.sh
-# or
-./psh.phar administration:build
-```
-
-## Uninstallation
-
-The plugin supports clean uninstallation with optional data retention:
-
-```bash
-# Keep data (tables remain)
-bin/console plugin:uninstall PPOBase
-
-# Remove all data (drops tables)
-bin/console plugin:uninstall PPOBase --keep-user-data=false
-```
-
-## API Endpoints
-
-All endpoints require admin API authentication.
-
-### List Suppliers
-```
-GET /api/ppobase/supplier
-```
-
-Query parameters:
-- `page` (int): Page number (default: 1)
-- `limit` (int): Items per page (default: 25, max: 100)
-- `search` (string): Search term
-- `active` (bool): Filter by active status
-- `sortBy` (string): Field to sort by (default: createdAt)
-- `sortOrder` (string): ASC or DESC (default: DESC)
-
-### Get Single Supplier
-```
-GET /api/ppobase/supplier/{id}
-```
-
-### Create Supplier
-```
-POST /api/ppobase/supplier
-Content-Type: application/json
-
-{
-    "companyTradeName": "Example Supplier Ltd",
-    "active": true,
-    "vatNumber": "DE123456789",
-    ...
-}
-```
-
-### Update Supplier
-```
-PATCH /api/ppobase/supplier/{id}
-Content-Type: application/json
-
-{
-    "companyTradeName": "Updated Name",
-    ...
-}
-```
-
-### Delete Supplier
-```
-DELETE /api/ppobase/supplier/{id}
-```
-
-## Administration UI
-
-After installation, navigate to:
-**Settings → Extensions → POBase Suppliers**
-
 # PPOBase Client Manual
 
 **Shopware 6.7.x ERP and purchasing plugin**  
-Prepared by the developer for the client  
-Document version: **1.0**
+Prepared by the developer for the client
 
 ---
 
-## About This Manual
+## Introduction
 
-This manual explains how the **PPOBase plugin** is used inside the Shopware Administration.
+PPOBase is an ERP and purchasing plugin for Shopware.
 
-The goal is to make each feature easy to understand, with clear steps for everyday work.
+The plugin adds ERP-style tools to the Shopware Administration and helps manage supplier purchasing, stock changes, goods receipts, manual orders, grouped products, activity logs, and sales reports.
+
+This manual explains how the PPOBase plugin is used inside the Shopware Administration. The goal is to make each feature easy to understand, with clear steps for everyday work.
+
+---
+
+## Version
+
+| Item | Value |
+|---|---|
+| Document version | 1.0 |
+| Plugin name | PPOBase |
+| Supported Shopware version | Shopware 6.7.x |
+
+---
+
+## Requirements
+
+Before installing or using PPOBase, make sure the following requirements are met:
+
+| Requirement | Version / Notes |
+|---|---|
+| Shopware | 6.7.x |
+| PHP | 8.1 or higher |
+| Shopware Administration access | Required |
+| Plugin permissions | User must be allowed to manage products, orders, settings, and plugins |
+| Mailer configuration | Required for sending purchase order emails |
+| Shop email address | Must be configured in Shopware Basic Information |
 
 ---
 
@@ -165,6 +56,11 @@ The goal is to make each feature easy to understand, with clear steps for everyd
 12. [Product Tab Positions](#product-tab-positions)
 13. [Recommended Workflow](#recommended-workflow)
 14. [Notes and Important Rules](#notes-and-important-rules)
+15. [Database Tables](#database-tables)
+16. [Roadmap](#roadmap)
+17. [License](#license)
+18. [Contributing](#contributing)
+19. [Support](#support)
 
 ---
 
@@ -202,9 +98,51 @@ It is used to:
 
 ### Installation
 
-1. Install and activate the PPOBase plugin from the Shopware plugin area or by the server installation process.
-2. After activation, rebuild the Shopware Administration so the PPOBase menu items and product tabs appear.
-3. Clear the Shopware cache after installation or after any administration asset rebuild.
+Install and activate the PPOBase plugin from the Shopware plugin area or by the server installation process.
+
+After activation, rebuild the Shopware Administration so the PPOBase menu items and product tabs appear.
+
+Clear the Shopware cache after installation or after any administration asset rebuild.
+
+### Via Composer
+
+```bash
+composer require ppobase/ppobase
+bin/console plugin:refresh
+bin/console plugin:install --activate PPOBase
+bin/console cache:clear
+````
+
+### Manual Installation
+
+1. Download or clone this repository.
+2. Extract the plugin to:
+
+```text
+custom/plugins/PPOBase
+```
+
+3. Run the following commands:
+
+```bash
+bin/console plugin:refresh
+bin/console plugin:install --activate PPOBase
+bin/console cache:clear
+```
+
+### Build Administration Assets
+
+After installation, rebuild the administration:
+
+```bash
+bin/build-administration.sh
+```
+
+Or:
+
+```bash
+./psh.phar administration:build
+```
 
 ### Access in Shopware Administration
 
@@ -220,7 +158,7 @@ Open:
 
 ```text
 Settings > Extensions > PPOBase
-````
+```
 
 Use this section to configure the purchase order document template.
 
@@ -747,54 +685,92 @@ Settings > Mailer
 
 ---
 
-## Version
-
-| Version | Description           |
-| ------- | --------------------- |
-| 1.0     | Initial client manual |
-
-```
-```
-
-
 ## Database Tables
 
-The plugin creates the following tables:
+The plugin creates the following tables.
 
 ### `ppobase_supplier`
-Stores all supplier information including:
-- Basic info (id, active, supplier_number, items_id_range)
-- Company details (trade name, official name, VAT, etc.)
-- Contact information (primary and general)
-- Addresses (billing and shipping)
-- Logistics (lead time, delivery days)
-- Commercial terms (currency, payment terms, incoterms, discounts)
-- Audit fields (created_by, updated_by, created_at, updated_at)
 
-## Roadmap (V2) in random order
+Stores all supplier information, including:
+
+* Basic information
+
+  * ID
+  * Active status
+  * Supplier number
+  * Item ID range
+* Company details
+
+  * Trade name
+  * Official name
+  * VAT number
+  * Registration numbers
+* Contact information
+
+  * Primary contact
+  * General contact
+* Addresses
+
+  * Billing address
+  * Shipping address
+* Logistics
+
+  * Lead time
+  * Delivery days
+* Commercial terms
+
+  * Currency
+  * Payment terms
+  * Incoterms
+  * Discounts
+* Audit fields
+
+  * Created by
+  * Updated by
+  * Created at
+  * Updated at
+
+---
+
+## Roadmap
 
 Future planned features:
-- User Rights Management
-- Document templates per saleschannel
-- POS function (Point of Sale)
-- Calander with sync options
-- Kanban board
-- Knowledge Management / FAQ module
-- Pricelist per customer group
-- Multiple Warehouses
+
+* User Rights Management
+* Document templates per sales channel
+* POS function
+* Calendar with sync options
+* Kanban board
+* Knowledge Management / FAQ module
+* Price list per customer group
+* Multiple warehouses
+
+---
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Submit a pull request.
+
+---
 
 ## Support
 
-For issues and feature requests, please use the GitHub issue tracker:
+For issues and feature requests, use the GitHub issue tracker:
+
+```text
 https://github.com/Tim-VL/POBase/issues
+```
+
+```
+```
