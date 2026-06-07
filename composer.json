@@ -1,7 +1,7 @@
 {
     "name": "ppobase/ppobase",
     "description": "PPOBase - A comprehensive ERP module for Shopware 6. Manages suppliers, purchase orders, goods receipts, stock bookings, manual sales orders, sales reports, and activity logging.",
-    "version": "1.1.0",
+    "version": "1.1.2",
     "type": "shopware-platform-plugin",
     "license": "MIT",
     "authors": [
