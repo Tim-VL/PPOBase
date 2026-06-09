@@ -6,7 +6,7 @@
 
 ## Introduction
 
-PPOBase is an ERP and purchasing plugin for Shopware.
+PPOBase is an minimal ERP and purchasing plugin for Shopware.
 
 The plugin adds ERP-style tools to the Shopware Administration and helps manage supplier purchasing, stock changes, goods receipts, manual orders, grouped products, activity logs, and sales reports.
 
@@ -31,7 +31,7 @@ Before installing or using PPOBase, make sure the following requirements are met
 | Requirement | Version / Notes |
 |---|---|
 | Shopware | 6.7.x |
-| PHP | 8.1 or higher |
+| PHP | 8.2 or higher |
 | Shopware Administration access | Required |
 | Plugin permissions | User must be allowed to manage products, orders, settings, and plugins |
 | Mailer configuration | Required for sending purchase order emails |
@@ -72,7 +72,7 @@ It is used to:
 - Manage suppliers
 - Link products to suppliers
 - Create purchase orders
-- Receive goods
+- Receive goods (from purchase orders)
 - Update stock
 - Create manual sales orders
 - View activity logs
@@ -88,8 +88,8 @@ It is used to:
 - Product tabs for stock, purchase, packaging, stock history, and grouped products
 - Sales Reports
 - Manual Orders
-- Product Tab Positions
-- Purchase Order template settings
+- Product Tab Positions (set product tab order)
+- Purchase Order template settings (via plugin setting)
 
 ---
 
