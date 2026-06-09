@@ -18,7 +18,7 @@ This manual explains how the PPOBase plugin is used inside the Shopware Administ
 
 | Item | Value |
 |---|---|
-| Document version | 1.0 |
+| Plugin version | 1.1.2 |
 | Plugin name | PPOBase |
 | Supported Shopware version | Shopware 6.7.x |
 
