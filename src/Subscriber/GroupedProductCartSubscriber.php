@@ -245,6 +245,6 @@ class GroupedProductCartSubscriber implements EventSubscriberInterface
 
     private function getGroupedChildLineItemId(string $parentLineItemId, string $childProductId): string
     {
-        return 'ppobase-' . md5($parentLineItemId . '-' . $childProductId);
+        return md5($parentLineItemId . '-' . $childProductId);
     }
 }
