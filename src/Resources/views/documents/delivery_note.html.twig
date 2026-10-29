@@ -1,0 +1,64 @@
+
+{% sw_extends '@Framework/documents/delivery_note.html.twig' %}
+
+{#
+    PPOBase – Grouped Products Delivery Note
+
+    - Prefix parent products with "SET:"
+    - Indent child products
+    - Preserve standard Shopware rendering for normal products
+    - No changes to quantities, prices or stock
+#}
+
+{% block document_line_item_table_column_label %}
+
+    {# Read PPOBase metadata. #}
+    {% set payload = lineItem.payload|default({}) %}
+
+    {# Check whether this is a grouped child product. #}
+    {% set isGroupedChild =
+        payload.ppobase_grouped_child|default(false)
+    %}
+
+    {# Identify the current product. #}
+    {% set currentProductId =
+        lineItem.productId|default(
+            lineItem.referencedId|default('')
+        )
+    %}
+
+    {# Find children belonging to this product. #}
+    {% set isGroupedParent = false %}
+
+    {% if not isGroupedChild and currentProductId %}
+
+        {% set groupedChildren = order.lineItems|filter(
+            item =>
+                item.payload.ppobase_grouped_child|default(false)
+                and
+                item.payload.ppobase_grouped_parent_product_id
+                    |default('') == currentProductId
+        ) %}
+
+        {% set isGroupedParent = groupedChildren|length > 0 %}
+
+    {% endif %}
+
+    {# Display the product label. #}
+    {% if isGroupedParent %}
+
+        <strong>SET: {{ lineItem.label|sw_sanitize(null, true) }}</strong>
+
+    {% elseif isGroupedChild %}
+
+        <span style="padding-left: 20px; display: inline-block;">
+            - {{ lineItem.label|sw_sanitize(null, true) }}
+        </span>
+
+    {% else %}
+
+        {{ parent() }}
+
+    {% endif %}
+
+{% endblock %}
