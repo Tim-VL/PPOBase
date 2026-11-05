@@ -10,7 +10,6 @@
             {{ $tc('ppobase-activity-log.list.buttonRefresh') }}
         </sw-button>
     </template>
-
     <template #content>
         <sw-card :title="$tc('ppobase-activity-log.list.cardFilters')">
             <sw-container columns="1fr 1fr 1fr" gap="20px">
@@ -20,7 +19,6 @@
                     :label="$tc('ppobase-activity-log.list.labelEntityType')"
                     @update:value="onFilterChange">
                 </sw-single-select>
-
                 <sw-single-select
                     v-model:value="filterAction"
                     :options="actionOptions"
@@ -29,22 +27,22 @@
                 </sw-single-select>
             </sw-container>
         </sw-card>
-
         <sw-card :isLoading="isLoading">
             <sw-data-grid
+                :showSettings="true"
+                identifier="ppobase-activity-log-list"
                 v-if="activityLogs && activityLogs.length > 0"
                 :dataSource="activityLogs"
                 :columns="columns"
                 :showSelection="false"
-                :showActions="false"
+                :showActions="true"
                 :sortBy="sortBy"
                 :sortDirection="sortDirection"
                 @column-sort="onColumnSort">
-                
+
                 <template #column-loggedAt="{ item }">
                     {{ formatDate(item.loggedAt) }}
                 </template>
-
                 <template #column-entityType="{ item }">
                     <sw-label size="small" appearance="pill">
                         {{ getEntityTypeLabel(item.entityType) }}
@@ -56,7 +54,6 @@
                         {{ item.action }}
                     </sw-label>
                 </template>
-
                 <template #column-referenceNumber="{ item }">
                     <strong v-if="item.referenceNumber">{{ item.referenceNumber }}</strong>
                     <span v-else>-</span>
@@ -67,7 +64,6 @@
                     <span v-else>-</span>
                 </template>
             </sw-data-grid>
-
             <sw-pagination
                 v-if="total > 0"
                 :page="page"
